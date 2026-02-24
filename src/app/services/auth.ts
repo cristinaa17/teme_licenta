@@ -43,4 +43,13 @@ export class AuthService {
 
     this.router.navigate(['/public']);
   }
+
+  getUser() {
+    return JSON.parse(localStorage.getItem('user') || 'null');
+  }
+
+  logout() {
+    localStorage.removeItem('user');
+    this.router.navigate(['/login']);
+  }
 }

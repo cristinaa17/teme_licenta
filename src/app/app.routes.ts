@@ -8,7 +8,7 @@ export const routes: Routes = [
   },
   {
     path: 'public',
-    loadComponent: () => import('./pages/public/public').then((m) => m.Public),
+    loadComponent: () => import('./pages/public/public').then((m) => m.PublicComponent),
     canActivate: [authGuard],
   },
   { path: '', redirectTo: 'login', pathMatch: 'full' },

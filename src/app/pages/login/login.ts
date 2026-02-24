@@ -1,14 +1,13 @@
 import { Component, AfterViewInit, inject } from '@angular/core';
 import { AuthService } from '../../services/auth';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   standalone: true,
-  template: `
-    <div style="text-align:center; margin-top:100px">
-      <h2>Login ULBS</h2>
-      <div id="googleBtn"></div>
-    </div>
-  `,
+  imports: [MatCardModule, MatButtonModule], 
+  templateUrl: './login.html',
+  styleUrls: ['./login.css']
 })
 export class LoginComponent implements AfterViewInit {
   private auth = inject(AuthService);
