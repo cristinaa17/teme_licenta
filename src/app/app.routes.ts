@@ -11,5 +11,13 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/public/public').then((m) => m.PublicComponent),
     canActivate: [authGuard],
   },
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  {
+    path: '',
+    redirectTo: 'public',
+    pathMatch: 'full',
+  },
+  {
+    path: '**',
+    redirectTo: 'login',
+  },
 ];

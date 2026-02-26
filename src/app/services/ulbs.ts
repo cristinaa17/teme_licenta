@@ -16,4 +16,23 @@ export class UlbsService {
   getSpecializations(facultyId: string) {
     return this.http.get<any>(`${this.baseUrl}/specializations/${facultyId}`);
   }
+
+  addTheme(theme: any) {
+    return this.http.post('http://localhost:3000/api/themes', theme);
+  }
+
+  getThemes(facultyId?: string, specializationId?: string) {
+    let url = 'http://localhost:3000/api/themes';
+
+    const params = [];
+
+    if (facultyId) params.push(`facultyId=${facultyId}`);
+    if (specializationId) params.push(`specializationId=${specializationId}`);
+
+    if (params.length > 0) {
+      url += '?' + params.join('&');
+    }
+
+    return this.http.get(url);
+  }
 }

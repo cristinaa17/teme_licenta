@@ -23,10 +23,10 @@
       <i class="bi bi-journal-text me-2"></i>
       Platformă Teme de Licență
     </h1>
-
     <p class="text-muted">Găsește tema perfectă și profesorul potrivit</p>
   </div>
 
+  <!-- SEARCH -->
   <div class="row justify-content-center">
     <div class="col-md-8">
       <div class="card shadow-lg border-0 p-4">
@@ -43,26 +43,86 @@
           (change)="onFacultyChange($event)"
         >
           <option value="" disabled>Alege facultatea</option>
-
           <option *ngFor="let f of faculties" [value]="f.id">
             {{ f.name }}
           </option>
         </select>
+
         <select
           class="form-select mb-3 text-dark bg-white"
           *ngIf="specializations && specializations.length > 0"
+          [(ngModel)]="selectedSpecialization"
         >
-          <option disabled selected>Alege specializarea</option>
-
+          <option value="" disabled>Alege specializarea</option>
           <option *ngFor="let s of specializations" [value]="s.id">
             {{ s.name }}
           </option>
         </select>
 
-        <button class="btn btn-primary w-100">
+        <button class="btn btn-primary w-100" (click)="search()">
           <i class="bi bi-search me-1"></i>
           Caută
         </button>
+
+        <!-- ADD THEME -->
+        <div *ngIf="user?.role === 'profesor'" class="mt-4">
+          <hr />
+
+          <h5 class="fw-bold mb-3">
+            <i class="bi bi-plus-circle me-2"></i>
+            Adaugă temă
+          </h5>
+
+          <input class="form-control mb-2" placeholder="Titlu temă" [(ngModel)]="newTheme.title" />
+
+          <textarea
+            class="form-control mb-2"
+            rows="3"
+            placeholder="Descriere"
+            [(ngModel)]="newTheme.description"
+          ></textarea>
+
+          <select
+            class="form-select mb-2"
+            [(ngModel)]="profFaculty"
+            (change)="onFacultyChange($event, true)"
+          >
+            <option value="" disabled>Alege facultatea</option>
+            <option *ngFor="let f of faculties" [value]="f.id">
+              {{ f.name }}
+            </option>
+          </select>
+
+          <select class="form-select mb-2" [(ngModel)]="profSpecialization">
+            <option value="" disabled>Alege specializarea</option>
+            <option *ngFor="let s of specializations" [value]="s.id">
+              {{ s.name }}
+            </option>
+          </select>
+
+          <button class="btn btn-success w-100" (click)="addTheme()">Salvează tema</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LISTA TEME -->
+  <div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+      <h4 class="fw-bold mb-3">
+        <i class="bi bi-list-check me-2"></i>
+        Teme disponibile
+      </h4>
+
+      <div *ngIf="themes.length === 0" class="text-muted">Nu există încă teme.</div>
+
+      <div *ngFor="let t of themes" class="card mb-3 shadow-sm border-0 p-3">
+        <h5 class="mb-1">{{ t.title }}</h5>
+        <p class="mb-2 text-muted">{{ t.description }}</p>
+        <small class="text-muted">
+          <i class="bi bi-person-badge me-1"></i>
+          {{ t.professor_name }}
+        </small>
       </div>
     </div>
   </div>

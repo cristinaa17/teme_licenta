@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 declare const google: any;
 
@@ -7,7 +8,10 @@ declare const google: any;
 export class AuthService {
   private user: any = null;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private http: HttpClient,
+  ) {}
 
   initGoogle(callback: any) {
     const btn = document.getElementById('googleBtn');
@@ -38,14 +42,35 @@ export class AuthService {
       return;
     }
 
-    this.user = payload;
-    localStorage.setItem('user', JSON.stringify(payload));
+    this.saveUser(payload).subscribe({
+      next: (userFromDb: any) => {
+        console.log('USER DIN DB:', userFromDb);
 
-    this.router.navigate(['/public']);
+        this.user = userFromDb;
+        localStorage.setItem('user', JSON.stringify(userFromDb));
+
+        this.router.navigate(['/public']);
+      },
+      error: (err) => {
+        console.error('Eroare salvare user', err);
+
+        this.user = payload;
+        localStorage.setItem('user', JSON.stringify(payload));
+
+        this.router.navigate(['/public']);
+      },
+    });
   }
 
   getUser() {
     return JSON.parse(localStorage.getItem('user') || 'null');
+  }
+
+  saveUser(user: any) {
+    return this.http.post('http://localhost:3000/api/users', {
+      email: user.email,
+      name: user.name,
+    });
   }
 
   logout() {
