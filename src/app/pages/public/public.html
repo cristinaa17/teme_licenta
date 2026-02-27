@@ -26,8 +26,7 @@
     <p class="text-muted">Găsește tema perfectă și profesorul potrivit</p>
   </div>
 
-  <!-- SEARCH -->
-  <div class="row justify-content-center">
+  <div *ngIf="user?.role !== 'profesor'" class="row justify-content-center">
     <div class="col-md-8">
       <div class="card shadow-lg border-0 p-4">
         <h4 class="mb-3">
@@ -35,7 +34,12 @@
           Caută teme
         </h4>
 
-        <input type="text" class="form-control mb-3" placeholder="Caută după profesor..." />
+        <input
+          type="text"
+          class="form-control mb-3"
+          placeholder="Caută după profesor..."
+          [(ngModel)]="searchProfessor"
+        />
 
         <select
           class="form-select mb-3 text-dark bg-white"
@@ -63,62 +67,76 @@
           <i class="bi bi-search me-1"></i>
           Caută
         </button>
-
-        <!-- ADD THEME -->
-        <div *ngIf="user?.role === 'profesor'" class="mt-4">
-          <hr />
-
-          <h5 class="fw-bold mb-3">
-            <i class="bi bi-plus-circle me-2"></i>
-            Adaugă temă
-          </h5>
-
-          <input class="form-control mb-2" placeholder="Titlu temă" [(ngModel)]="newTheme.title" />
-
-          <textarea
-            class="form-control mb-2"
-            rows="3"
-            placeholder="Descriere"
-            [(ngModel)]="newTheme.description"
-          ></textarea>
-
-          <select
-            class="form-select mb-2"
-            [(ngModel)]="profFaculty"
-            (change)="onFacultyChange($event, true)"
-          >
-            <option value="" disabled>Alege facultatea</option>
-            <option *ngFor="let f of faculties" [value]="f.id">
-              {{ f.name }}
-            </option>
-          </select>
-
-          <select class="form-select mb-2" [(ngModel)]="profSpecialization">
-            <option value="" disabled>Alege specializarea</option>
-            <option *ngFor="let s of specializations" [value]="s.id">
-              {{ s.name }}
-            </option>
-          </select>
-
-          <button class="btn btn-success w-100" (click)="addTheme()">Salvează tema</button>
-        </div>
       </div>
     </div>
   </div>
 
-  <!-- LISTA TEME -->
+  <div *ngIf="user?.role === 'profesor'" class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-lg border-0 p-4">
+        <h4 class="fw-bold mb-3">
+          <i class="bi bi-plus-circle me-2"></i>
+          Adaugă temă
+        </h4>
+
+        <input class="form-control mb-2" placeholder="Titlu temă" [(ngModel)]="newTheme.title" />
+
+        <textarea
+          class="form-control mb-2"
+          rows="3"
+          placeholder="Descriere"
+          [(ngModel)]="newTheme.description"
+        ></textarea>
+
+        <select
+          class="form-select mb-2"
+          [(ngModel)]="profFaculty"
+          (change)="onFacultyChange($event, true)"
+        >
+          <option value="" disabled>Alege facultatea</option>
+          <option *ngFor="let f of faculties" [value]="f.id">
+            {{ f.name }}
+          </option>
+        </select>
+
+        <select class="form-select mb-2" [(ngModel)]="profSpecialization">
+          <option value="" disabled>Alege specializarea</option>
+          <option *ngFor="let s of specializations" [value]="s.id">
+            {{ s.name }}
+          </option>
+        </select>
+
+        <button class="btn btn-success w-100" (click)="addTheme()">Salvează tema</button>
+      </div>
+    </div>
+  </div>
+
   <div class="row justify-content-center mt-4">
     <div class="col-md-8">
       <h4 class="fw-bold mb-3">
         <i class="bi bi-list-check me-2"></i>
-        Teme disponibile
+        {{ user?.role === 'profesor' ? 'Temele mele' : 'Teme disponibile' }}
       </h4>
 
       <div *ngIf="themes.length === 0" class="text-muted">Nu există încă teme.</div>
 
       <div *ngFor="let t of themes" class="card mb-3 shadow-sm border-0 p-3">
         <h5 class="mb-1">{{ t.title }}</h5>
-        <p class="mb-2 text-muted">{{ t.description }}</p>
+
+        <p class="mb-2 text-muted">
+          {{ t.description }}
+        </p>
+
+        <small class="text-muted d-block">
+          <i class="bi bi-building me-1"></i>
+          {{ t.faculty_name || '—' }}
+        </small>
+
+        <small class="text-muted d-block">
+          <i class="bi bi-mortarboard me-1"></i>
+          {{ t.specialization_name || '—' }}
+        </small>
+
         <small class="text-muted">
           <i class="bi bi-person-badge me-1"></i>
           {{ t.professor_name }}

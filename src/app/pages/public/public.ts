@@ -20,6 +20,7 @@ export class PublicComponent implements OnInit {
   selectedSpecialization: string = '';
   profFaculty: string = '';
   profSpecialization: string = '';
+  searchProfessor: string = '';
 
   private cdr = inject(ChangeDetectorRef);
 
@@ -57,19 +58,23 @@ export class PublicComponent implements OnInit {
   }
 
   search() {
-    this.ulbs.getThemes(this.selectedFaculty, this.selectedSpecialization).subscribe((res: any) => {
-      this.themes = res;
-    });
+    this.ulbs
+      .getThemes(this.selectedFaculty, this.selectedSpecialization, this.searchProfessor)
+      .subscribe((res: any) => {
+        this.themes = res;
+      });
   }
 
   addTheme() {
     const payload = {
       ...this.newTheme,
       professor_email: this.user.email,
-      faculty_id: this.profFaculty,
-      specialization_id: this.profSpecialization,
+      faculty_id: Number(this.profFaculty),
+      specialization_id: Number(this.profSpecialization),
+      faculty_name: this.faculties.find((f) => f.id == this.profFaculty)?.name,
+      specialization_name: this.specializations.find((s) => s.id == this.profSpecialization)?.name,
     };
-
+    console.log('FACULTY:', this.profFaculty);
     this.ulbs.addTheme(payload).subscribe(() => {
       this.newTheme = { title: '', description: '' };
       this.search();
@@ -89,6 +94,7 @@ export class PublicComponent implements OnInit {
 
     this.ulbs.getSpecializations(facultyId).subscribe((res: any) => {
       this.specializations = res.data || [];
+      this.search();
       this.cdr.detectChanges();
     });
   }

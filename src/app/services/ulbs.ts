@@ -21,13 +21,14 @@ export class UlbsService {
     return this.http.post('http://localhost:3000/api/themes', theme);
   }
 
-  getThemes(facultyId?: string, specializationId?: string) {
+  getThemes(facultyId?: string, specializationId?: string, professor?: string) {
     let url = 'http://localhost:3000/api/themes';
 
-    const params = [];
+    const params: string[] = [];
 
     if (facultyId) params.push(`facultyId=${facultyId}`);
     if (specializationId) params.push(`specializationId=${specializationId}`);
+    if (professor) params.push(`professor=${professor}`);
 
     if (params.length > 0) {
       url += '?' + params.join('&');

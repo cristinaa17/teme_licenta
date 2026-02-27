@@ -93,14 +93,30 @@ app.get('/api/specializations/:facultyId', async (req, res) => {
 });
 
 app.post('/api/themes', async (req, res) => {
-  const { title, description, professor_email, faculty_id, specialization_id } = req.body;
+  const {
+    title,
+    description,
+    professor_email,
+    faculty_id,
+    specialization_id,
+    faculty_name,
+    specialization_name,
+  } = req.body;
 
   try {
     const result = await pool.query(
-      `INSERT INTO themes (title, description, professor_email, faculty_id, specialization_id)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`,
-      [title, description, professor_email, faculty_id, specialization_id],
+      `INSERT INTO themes 
+  (title, description, professor_email, faculty_id, specialization_id, faculty_name, specialization_name)
+  VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+      [
+        title,
+        description,
+        professor_email,
+        faculty_id,
+        specialization_id,
+        faculty_name,
+        specialization_name,
+      ],
     );
 
     res.json(result.rows[0]);
@@ -111,35 +127,43 @@ app.post('/api/themes', async (req, res) => {
 });
 
 app.get('/api/themes', async (req, res) => {
-  const { facultyId, specializationId } = req.query;
+  const { facultyId, specializationId, professor } = req.query;
 
-  let query = `
-    SELECT t.*, u.name AS professor_name
-    FROM themes t
-    JOIN users u ON t.professor_email = u.email
-  `;
+  try {
+    let query = `
+      SELECT 
+        t.*,
+        u.name as professor_name
+      FROM themes t
+      JOIN users u ON t.professor_email = u.email
+      WHERE 1=1
+    `;
 
-  const params = [];
-  const conditions = [];
+    const values = [];
+    let index = 1;
 
-  if (facultyId) {
-    params.push(facultyId);
-    conditions.push(`t.faculty_id = $${params.length}`);
+    if (facultyId) {
+      query += ` AND t.faculty_id = $${index++}`;
+      values.push(facultyId);
+    }
+
+    if (specializationId) {
+      query += ` AND t.specialization_id = $${index++}`;
+      values.push(specializationId);
+    }
+
+    if (professor) {
+      query += ` AND LOWER(u.name) LIKE LOWER($${index++})`;
+      values.push(`%${professor}%`);
+    }
+
+    const result = await pool.query(query, values);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error fetching themes');
   }
-
-  if (specializationId) {
-    params.push(specializationId);
-    conditions.push(`t.specialization_id = $${params.length}`);
-  }
-
-  if (conditions.length > 0) {
-    query += ' WHERE ' + conditions.join(' AND ');
-  }
-
-  query += ' ORDER BY t.id DESC';
-
-  const result = await pool.query(query, params);
-  res.json(result.rows);
 });
 
 app.listen(PORT, () => {
