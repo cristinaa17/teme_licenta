@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const https = require('https');
 const cors = require('cors');
+process.env.PGCLIENTENCODING = 'UTF8';
 
 const app = express();
 const PORT = 3000;

@@ -44,10 +44,10 @@
         <select
           class="form-select mb-3 text-dark bg-white"
           [(ngModel)]="selectedFaculty"
-          (change)="onFacultyChange($event)"
+          (change)="onFacultyChange()"
         >
           <option value="" disabled>Alege facultatea</option>
-          <option *ngFor="let f of faculties" [value]="f.id">
+          <option *ngFor="let f of faculties" [ngValue]="f.id">
             {{ f.name }}
           </option>
         </select>
@@ -58,7 +58,7 @@
           [(ngModel)]="selectedSpecialization"
         >
           <option value="" disabled>Alege specializarea</option>
-          <option *ngFor="let s of specializations" [value]="s.id">
+          <option *ngFor="let s of specializations" [ngValue]="s.id">
             {{ s.name }}
           </option>
         </select>
@@ -88,20 +88,16 @@
           [(ngModel)]="newTheme.description"
         ></textarea>
 
-        <select
-          class="form-select mb-2"
-          [(ngModel)]="profFaculty"
-          (change)="onFacultyChange($event, true)"
-        >
+        <select class="form-select mb-2" [(ngModel)]="profFaculty" (change)="onFacultyChange(true)">
           <option value="" disabled>Alege facultatea</option>
-          <option *ngFor="let f of faculties" [value]="f.id">
+          <option *ngFor="let f of faculties" [ngValue]="f.id">
             {{ f.name }}
           </option>
         </select>
 
         <select class="form-select mb-2" [(ngModel)]="profSpecialization">
           <option value="" disabled>Alege specializarea</option>
-          <option *ngFor="let s of specializations" [value]="s.id">
+          <option *ngFor="let s of specializations" [ngValue]="s.id">
             {{ s.name }}
           </option>
         </select>

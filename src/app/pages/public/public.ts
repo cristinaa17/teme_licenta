@@ -59,7 +59,11 @@ export class PublicComponent implements OnInit {
 
   search() {
     this.ulbs
-      .getThemes(this.selectedFaculty, this.selectedSpecialization, this.searchProfessor)
+      .getThemes(
+        Number(this.selectedFaculty),
+        Number(this.selectedSpecialization),
+        this.searchProfessor,
+      )
       .subscribe((res: any) => {
         this.themes = res;
       });
@@ -81,8 +85,8 @@ export class PublicComponent implements OnInit {
     });
   }
 
-  onFacultyChange(event: any, isProfessor = false) {
-    const facultyId = event.target.value;
+  onFacultyChange(isProfessor = false) {
+    const facultyId = isProfessor ? this.profFaculty : this.selectedFaculty;
 
     if (isProfessor) {
       this.profSpecialization = '';
@@ -94,7 +98,11 @@ export class PublicComponent implements OnInit {
 
     this.ulbs.getSpecializations(facultyId).subscribe((res: any) => {
       this.specializations = res.data || [];
-      this.search();
+
+      if (!isProfessor) {
+        this.search();
+      }
+
       this.cdr.detectChanges();
     });
   }
