@@ -104,11 +104,15 @@ app.post('/api/themes', async (req, res) => {
     specialization_name,
   } = req.body;
 
+  if (!title || !description) {
+    return res.status(400).json({ message: 'Missing fields' });
+  }
+
   try {
     const result = await pool.query(
       `INSERT INTO themes 
   (title, description, professor_email, faculty_id, specialization_id, faculty_name, specialization_name)
-  VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+  VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
       [
         title,
         description,
@@ -164,6 +168,53 @@ app.get('/api/themes', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send('Error fetching themes');
+  }
+});
+
+app.delete('/api/themes/:id', async (req, res) => {
+  const { id } = req.params;
+  const { email } = req.body; 
+
+  try {
+    const result = await pool.query(
+      `DELETE FROM themes 
+       WHERE id = $1 AND professor_email = $2
+       RETURNING *`,
+      [id, email],
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(403).json({ message: 'Not allowed' });
+    }
+
+    res.json({ message: 'Theme deleted' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error deleting theme');
+  }
+});
+
+app.put('/api/themes/:id', async (req, res) => {
+  const { id } = req.params;
+  const { title, description, email } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE themes
+       SET title = $1, description = $2
+       WHERE id = $3 AND professor_email = $4
+       RETURNING *`,
+      [title, description, id, email],
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(403).json({ message: 'Not allowed' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error updating theme');
   }
 });
 

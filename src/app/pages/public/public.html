@@ -79,13 +79,19 @@
           Adaugă temă
         </h4>
 
-        <input class="form-control mb-2" placeholder="Titlu temă" [(ngModel)]="newTheme.title" />
+        <input
+          class="form-control mb-2"
+          placeholder="Titlu temă"
+          [(ngModel)]="newTheme.title"
+          name="title"
+        />
 
         <textarea
           class="form-control mb-2"
           rows="3"
           placeholder="Descriere"
           [(ngModel)]="newTheme.description"
+          name="description"
         ></textarea>
 
         <select class="form-select mb-2" [(ngModel)]="profFaculty" (change)="onFacultyChange(true)">
@@ -102,7 +108,14 @@
           </option>
         </select>
 
-        <button class="btn btn-success w-100" (click)="addTheme()">Salvează tema</button>
+        <button
+          type="button"
+          class="btn btn-success w-100"
+          [disabled]="isSaving"
+          (click)="addTheme($event)"
+        >
+          Salvează tema
+        </button>
       </div>
     </div>
   </div>
@@ -117,26 +130,48 @@
       <div *ngIf="themes.length === 0" class="text-muted">Nu există încă teme.</div>
 
       <div *ngFor="let t of themes" class="card mb-3 shadow-sm border-0 p-3">
-        <h5 class="mb-1">{{ t.title }}</h5>
+        <div *ngIf="editingThemeId !== t.id">
+          <h5 class="mb-1">{{ t.title }}</h5>
 
-        <p class="mb-2 text-muted">
-          {{ t.description }}
-        </p>
+          <p class="mb-2 text-muted">
+            {{ t.description }}
+          </p>
 
-        <small class="text-muted d-block">
-          <i class="bi bi-building me-1"></i>
-          {{ t.faculty_name || '—' }}
-        </small>
+          <small class="text-muted d-block">
+            <i class="bi bi-building me-1"></i>
+            {{ t.faculty_name || '—' }}
+          </small>
 
-        <small class="text-muted d-block">
-          <i class="bi bi-mortarboard me-1"></i>
-          {{ t.specialization_name || '—' }}
-        </small>
+          <small class="text-muted d-block">
+            <i class="bi bi-mortarboard me-1"></i>
+            {{ t.specialization_name || '—' }}
+          </small>
 
-        <small class="text-muted">
-          <i class="bi bi-person-badge me-1"></i>
-          {{ t.professor_name }}
-        </small>
+          <small class="text-muted d-block">
+            <i class="bi bi-person-badge me-1"></i>
+            {{ t.professor_name }}
+          </small>
+
+          <div *ngIf="user?.role === 'profesor' && user?.email === t.professor_email" class="mt-3">
+            <button class="btn btn-sm btn-warning me-2" (click)="startEdit(t)">Edit</button>
+
+            <button class="btn btn-sm btn-danger" (click)="deleteTheme(t.id)">Șterge</button>
+          </div>
+        </div>
+
+        <div *ngIf="editingThemeId === t.id">
+          <input class="form-control mb-2" [(ngModel)]="editData.title" />
+
+          <textarea
+            class="form-control mb-2"
+            rows="3"
+            [(ngModel)]="editData.description"
+          ></textarea>
+
+          <button class="btn btn-success btn-sm me-2" (click)="saveEdit(t.id)">Salvează</button>
+
+          <button class="btn btn-secondary btn-sm" (click)="editingThemeId = null">Anulează</button>
+        </div>
       </div>
     </div>
   </div>

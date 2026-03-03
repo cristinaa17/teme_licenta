@@ -36,4 +36,14 @@ export class UlbsService {
 
     return this.http.get(url);
   }
+
+  deleteTheme(id: number, email: string) {
+    return this.http.delete(`http://localhost:3000/api/themes/${id}`, {
+      body: { email },
+    });
+  }
+
+  updateTheme(id: number, data: any) {
+    return this.http.put(`http://localhost:3000/api/themes/${id}`, data);
+  }
 }
