@@ -6,10 +6,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
+import { RouterModule } from '@angular/router';
 
 @Component({
   standalone: true,
-  imports: [MatToolbarModule, MatButtonModule, CommonModule, FormsModule],
+  imports: [MatToolbarModule, MatButtonModule, CommonModule, FormsModule, RouterModule],
   templateUrl: './public.html',
   styleUrls: ['./public.css'],
 })
@@ -25,8 +26,7 @@ export class PublicComponent implements OnInit {
 
   private cdr = inject(ChangeDetectorRef);
 
-  user = this.auth.getUser();
-
+  user: any = null;
   faculties: any[] = [];
   specializations: any[] = [];
   themes: any[] = [];
@@ -42,13 +42,13 @@ export class PublicComponent implements OnInit {
   ngOnInit() {
     console.log('INIT');
 
+    this.user = this.auth.getUser();
+
     this.loadThemes();
 
     this.ulbs.getFaculties().subscribe((res: any) => {
       console.log('DATA:', res);
-
       this.faculties = res.data;
-
       this.cdr.detectChanges();
     });
   }
@@ -76,6 +76,11 @@ export class PublicComponent implements OnInit {
   addTheme(event?: MouseEvent) {
     event?.preventDefault();
     event?.stopPropagation();
+
+    if (!this.user) {
+      alert('Trebuie să fii logat pentru a adăuga o temă');
+      return;
+    }
 
     if (this.isSaving) return;
 
@@ -144,6 +149,7 @@ export class PublicComponent implements OnInit {
   }
 
   deleteTheme(id: number) {
+    if (!this.user) return;
     if (!confirm('Sigur vrei să ștergi tema?')) return;
 
     this.ulbs.deleteTheme(id, this.user.email).subscribe(() => {
@@ -160,6 +166,7 @@ export class PublicComponent implements OnInit {
   }
 
   saveEdit(id: number) {
+    if (!this.user) return;
     this.ulbs
       .updateTheme(id, {
         ...this.editData,
@@ -173,5 +180,7 @@ export class PublicComponent implements OnInit {
 
   logout() {
     this.auth.logout();
+    this.user = null;
+    this.loadThemes();
   }
 }
