@@ -178,6 +178,46 @@ export class PublicComponent implements OnInit {
       });
   }
 
+  apply(theme: any) {
+    const payload = {
+      theme_id: theme.id,
+      student_email: this.user.email,
+      student_name: this.user.name,
+    };
+
+    this.ulbs.applyToTheme(payload).subscribe({
+      next: () => {
+        alert('Ai aplicat la temă!');
+      },
+      error: (err) => {
+        if (err.status === 400) {
+          alert('Ai aplicat deja la această temă');
+        } else {
+          alert('Eroare la aplicare');
+        }
+      },
+    });
+  }
+
+  applicants: any[] = [];
+  selectedTheme: number | null = null;
+
+  viewApplicants(theme: any) {
+    this.selectedTheme = theme.id;
+
+    this.ulbs.getApplicants(theme.id).subscribe((res: any) => {
+      this.applicants = res;
+    });
+  }
+
+  accept(id: number) {
+    this.ulbs.acceptApplicant(id).subscribe(() => {
+      alert('Student acceptat');
+
+      this.loadThemes();
+    });
+  }
+
   logout() {
     this.auth.logout();
     this.user = null;

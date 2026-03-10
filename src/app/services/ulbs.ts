@@ -46,4 +46,16 @@ export class UlbsService {
   updateTheme(id: number, data: any) {
     return this.http.put(`http://localhost:3000/api/themes/${id}`, data);
   }
+
+  applyToTheme(data: any) {
+    return this.http.post('http://localhost:3000/api/applications', data);
+  }
+
+  getApplicants(themeId: number) {
+    return this.http.get(`http://localhost:3000/api/themes/${themeId}/applications`);
+  }
+
+  acceptApplicant(id: number) {
+    return this.http.post(`http://localhost:3000/api/applications/${id}/accept`, {});
+  }
 }

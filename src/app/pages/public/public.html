@@ -44,23 +44,21 @@
           [(ngModel)]="searchProfessor"
         />
 
-        <select
-          class="form-select mb-3 text-dark bg-white"
-          [(ngModel)]="selectedFaculty"
-          (change)="onFacultyChange()"
-        >
+        <select class="form-select mb-3" [(ngModel)]="selectedFaculty" (change)="onFacultyChange()">
           <option value="" disabled>Alege facultatea</option>
+
           <option *ngFor="let f of faculties" [ngValue]="f.id">
             {{ f.name }}
           </option>
         </select>
 
         <select
-          class="form-select mb-3 text-dark bg-white"
+          class="form-select mb-3"
           *ngIf="specializations && specializations.length > 0"
           [(ngModel)]="selectedSpecialization"
         >
           <option value="" disabled>Alege specializarea</option>
+
           <option *ngFor="let s of specializations" [ngValue]="s.id">
             {{ s.name }}
           </option>
@@ -82,23 +80,18 @@
           Adaugă temă
         </h4>
 
-        <input
-          class="form-control mb-2"
-          placeholder="Titlu temă"
-          [(ngModel)]="newTheme.title"
-          name="title"
-        />
+        <input class="form-control mb-2" placeholder="Titlu temă" [(ngModel)]="newTheme.title" />
 
         <textarea
           class="form-control mb-2"
           rows="3"
           placeholder="Descriere"
           [(ngModel)]="newTheme.description"
-          name="description"
         ></textarea>
 
         <select class="form-select mb-2" [(ngModel)]="profFaculty" (change)="onFacultyChange(true)">
           <option value="" disabled>Alege facultatea</option>
+
           <option *ngFor="let f of faculties" [ngValue]="f.id">
             {{ f.name }}
           </option>
@@ -106,6 +99,7 @@
 
         <select class="form-select mb-2" [(ngModel)]="profSpecialization">
           <option value="" disabled>Alege specializarea</option>
+
           <option *ngFor="let s of specializations" [ngValue]="s.id">
             {{ s.name }}
           </option>
@@ -127,27 +121,31 @@
     <div class="col-md-8">
       <h4 class="fw-bold mb-3">
         <i class="bi bi-list-check me-2"></i>
+
         {{ user?.role === 'profesor' ? 'Temele mele' : 'Teme disponibile' }}
       </h4>
 
       <div *ngIf="themes.length === 0" class="text-muted">Nu există încă teme.</div>
 
       <div *ngFor="let t of themes" class="card mb-3 shadow-sm border-0 p-3">
-        <div *ngIf="editingThemeId !== t.id">
-          <h5 class="mb-1">{{ t.title }}</h5>
 
-          <p class="mb-2 text-muted">
+        <div *ngIf="editingThemeId !== t.id">
+          <h5 class="mb-1">
+            {{ t.title }}
+          </h5>
+
+          <p class="text-muted mb-2">
             {{ t.description }}
           </p>
 
           <small class="text-muted d-block">
             <i class="bi bi-building me-1"></i>
-            {{ t.faculty_name || '—' }}
+            {{ t.faculty_name }}
           </small>
 
           <small class="text-muted d-block">
             <i class="bi bi-mortarboard me-1"></i>
-            {{ t.specialization_name || '—' }}
+            {{ t.specialization_name }}
           </small>
 
           <small class="text-muted d-block">
@@ -155,10 +153,22 @@
             {{ t.professor_name }}
           </small>
 
-          <div *ngIf="user?.role === 'profesor' && user?.email === t.professor_email" class="mt-3">
-            <button class="btn btn-sm btn-warning me-2" (click)="startEdit(t)">Edit</button>
+          <small *ngIf="t.status === 'taken'" class="text-danger d-block"> Temă ocupată </small>
 
-            <button class="btn btn-sm btn-danger" (click)="deleteTheme(t.id)">Șterge</button>
+          <button
+            *ngIf="user && user.role !== 'profesor' && t.status !== 'taken'"
+            class="btn btn-success btn-sm mt-2"
+            (click)="apply(t)"
+          >
+            Aplică
+          </button>
+
+          <div *ngIf="user?.role === 'profesor' && user?.email === t.professor_email" class="mt-3">
+            <button class="btn btn-warning btn-sm me-2" (click)="startEdit(t)">Edit</button>
+
+            <button class="btn btn-danger btn-sm me-2" (click)="deleteTheme(t.id)">Șterge</button>
+
+            <button class="btn btn-info btn-sm" (click)="viewApplicants(t)">Aplicanți</button>
           </div>
         </div>
 
@@ -174,6 +184,16 @@
           <button class="btn btn-success btn-sm me-2" (click)="saveEdit(t.id)">Salvează</button>
 
           <button class="btn btn-secondary btn-sm" (click)="editingThemeId = null">Anulează</button>
+        </div>
+
+        <div *ngIf="selectedTheme === t.id" class="mt-3">
+          <h6>Aplicanți</h6>
+
+          <div *ngFor="let a of applicants" class="border rounded p-2 mb-2">
+            {{ a.student_name }} ({{ a.student_email }})
+
+            <button class="btn btn-success btn-sm ms-2" (click)="accept(a.id)">Acceptă</button>
+          </div>
         </div>
       </div>
     </div>
