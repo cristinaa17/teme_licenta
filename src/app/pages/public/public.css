@@ -9,3 +9,8 @@ mat-toolbar {
 body {
   background-color: #f5f7fb;
 }
+
+::ng-deep .mat-mdc-menu-panel {
+  max-height: 300px;
+  overflow-y: auto;
+}

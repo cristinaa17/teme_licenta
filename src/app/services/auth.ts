@@ -37,10 +37,10 @@ export class AuthService {
 
     console.log('EMAIL:', email);
 
-    if (!email || !email.endsWith('@ulbsibiu.ro')) {
-      alert('Trebuie să folosești un cont @ulbsibiu.ro');
-      return;
-    }
+    // if (!email || !email.endsWith('@ulbsibiu.ro')) {
+    //   alert('Trebuie să folosești un cont @ulbsibiu.ro');
+    //   return;
+    // }
 
     this.saveUser(payload).subscribe({
       next: (userFromDb: any) => {

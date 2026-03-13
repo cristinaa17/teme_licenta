@@ -150,11 +150,9 @@ app.post('/api/themes', async (req, res) => {
   }
 });
 app.get('/api/themes', async (req, res) => {
-
   const { facultyId, specializationId, professor } = req.query;
 
   try {
-
     let query = `
       SELECT 
         t.*,
@@ -192,14 +190,10 @@ app.get('/api/themes', async (req, res) => {
     const result = await pool.query(query, values);
 
     res.json(result.rows);
-
   } catch (err) {
-
     console.error(err);
-    res.status(500).send("Error fetching themes");
-
+    res.status(500).send('Error fetching themes');
   }
-
 });
 
 app.delete('/api/themes/:id', async (req, res) => {
@@ -399,6 +393,20 @@ app.post('/api/themes/:id/like', async (req, res) => {
     console.error(err);
     res.status(500).send('Error liking theme');
   }
+});
+
+app.post('/api/admin/impersonate', async (req, res) => {
+  const { email } = req.body;
+
+  const user = await pool.query('SELECT * FROM users WHERE email=$1', [email]);
+
+  res.json(user.rows[0]);
+});
+
+app.get('/api/professors', async (req, res) => {
+  const result = await pool.query("SELECT email, name FROM users WHERE role='profesor'");
+
+  res.json(result.rows);
 });
 
 app.listen(PORT, () => {

@@ -7,10 +7,18 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { RouterModule } from '@angular/router';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   standalone: true,
-  imports: [MatToolbarModule, MatButtonModule, CommonModule, FormsModule, RouterModule],
+  imports: [
+    MatToolbarModule,
+    MatButtonModule,
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    MatMenuModule,
+  ],
   templateUrl: './public.html',
   styleUrls: ['./public.css'],
 })
@@ -23,6 +31,11 @@ export class PublicComponent implements OnInit {
   profFaculty: string = '';
   profSpecialization: string = '';
   searchProfessor: string = '';
+  professors: any[] = [];
+  showProfessorList = false;
+  isImpersonating = false;
+  applicants: any[] = [];
+  selectedTheme: number | null = null;
 
   private cdr = inject(ChangeDetectorRef);
 
@@ -43,6 +56,14 @@ export class PublicComponent implements OnInit {
     console.log('INIT');
 
     this.user = this.auth.getUser();
+
+    this.isImpersonating = !!localStorage.getItem('original_admin');
+
+    if (this.user?.role === 'admin') {
+      this.ulbs.getProfessors().subscribe((res: any) => {
+        this.professors = res;
+      });
+    }
 
     this.loadThemes();
 
@@ -199,9 +220,6 @@ export class PublicComponent implements OnInit {
     });
   }
 
-  applicants: any[] = [];
-  selectedTheme: number | null = null;
-
   viewApplicants(theme: any) {
     this.selectedTheme = theme.id;
 
@@ -238,14 +256,58 @@ export class PublicComponent implements OnInit {
       next: (res: any) => {
         theme.likes = res.likes;
 
-        theme.liked = true; 
+        theme.liked = true;
 
-        this.themes = [...this.themes]; 
+        this.themes = [...this.themes];
       },
       error: () => {
         alert('Ai dat deja like');
       },
     });
+  }
+
+  impersonate(email: string) {
+    const originalAdmin = this.auth.getUser();
+
+    localStorage.setItem('original_admin', JSON.stringify(originalAdmin));
+
+    this.ulbs.impersonate(email).subscribe((user: any) => {
+      localStorage.setItem('user', JSON.stringify(user));
+
+      this.isImpersonating = true;
+
+      location.reload();
+    });
+  }
+
+  stopImpersonation() {
+    const admin = localStorage.getItem('original_admin');
+
+    if (admin) {
+      localStorage.setItem('user', admin);
+
+      localStorage.removeItem('original_admin');
+
+      this.isImpersonating = false;
+
+      location.reload();
+    }
+  }
+
+  openProfessorList() {
+    this.ulbs.getProfessors().subscribe((res: any) => {
+      this.professors = res;
+
+      this.showProfessorList = true;
+    });
+  }
+
+  get filteredProfessors() {
+    if (!this.searchProfessor) return this.professors;
+
+    return this.professors.filter((p: any) =>
+      p.name.toLowerCase().includes(this.searchProfessor.toLowerCase()),
+    );
   }
 
   logout() {

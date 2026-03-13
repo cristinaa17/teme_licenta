@@ -18,11 +18,11 @@ export class UlbsService {
   }
 
   addTheme(theme: any) {
-    return this.http.post('http://localhost:3000/api/themes', theme);
+    return this.http.post(`${this.baseUrl}/themes`, theme);
   }
 
   getThemes(facultyId?: number, specializationId?: number, professor?: string) {
-    let url = 'http://localhost:3000/api/themes';
+    let url = `${this.baseUrl}/themes`;
 
     const params: string[] = [];
 
@@ -38,7 +38,7 @@ export class UlbsService {
   }
 
   deleteTheme(id: number, email: string) {
-    return this.http.delete(`http://localhost:3000/api/themes/${id}`, {
+    return this.http.delete(`${this.baseUrl}/themes/${id}`, {
       body: { email },
     });
   }
@@ -48,24 +48,32 @@ export class UlbsService {
   }
 
   applyToTheme(data: any) {
-    return this.http.post('http://localhost:3000/api/applications', data);
+    return this.http.post(`${this.baseUrl}/applications`, data);
   }
 
   getApplicants(themeId: number) {
-    return this.http.get(`http://localhost:3000/api/themes/${themeId}/applications`);
+    return this.http.get(`${this.baseUrl}/api/themes/${themeId}/applications`);
   }
 
   acceptApplicant(id: number) {
-    return this.http.post(`http://localhost:3000/api/applications/${id}/accept`, {});
+    return this.http.post(`${this.baseUrl}/applications/${id}/accept`, {});
   }
 
   likeTheme(themeId: number, visitorId: string) {
-    return this.http.post(`http://localhost:3000/api/themes/${themeId}/like`, {
+    return this.http.post(`${this.baseUrl}/themes/${themeId}/like`, {
       visitor_id: visitorId,
     });
   }
 
   getLikes(themeId: number) {
-    return this.http.get<any>(`http://localhost:3000/api/themes/${themeId}/likes`);
+    return this.http.get<any>(`${this.baseUrl}/themes/${themeId}/likes`);
+  }
+
+  impersonate(email: string) {
+    return this.http.post<any>(`${this.baseUrl}/admin/impersonate`, { email });
+  }
+
+  getProfessors() {
+    return this.http.get(`${this.baseUrl}/professors`);
   }
 }

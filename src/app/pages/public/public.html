@@ -12,6 +12,38 @@
       {{ user.name }}
     </span>
 
+    <button
+      *ngIf="user?.role === 'admin'"
+      mat-raised-button
+      color="accent"
+      [matMenuTriggerFor]="profMenu"
+    >
+      <i class="bi bi-person-badge me-1"></i>
+      Impersonare profesor
+      <i class="bi bi-chevron-down ms-1"></i>
+    </button>
+
+    <mat-menu #profMenu="matMenu" class="prof-menu">
+      <div class="px-3 py-2">
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          placeholder="Caută profesor..."
+          [(ngModel)]="searchProfessor"
+          (click)="$event.stopPropagation()"
+        />
+      </div>
+
+      <button mat-menu-item *ngFor="let p of filteredProfessors" (click)="impersonate(p.email)">
+        <i class="bi bi-person-circle me-2"></i>
+        {{ p.name }}
+      </button>
+    </mat-menu>
+
+    <button *ngIf="isImpersonating" mat-raised-button color="warn" (click)="stopImpersonation()">
+      Revino la Admin
+    </button>
+
     <button mat-raised-button color="accent" (click)="logout()">Logout</button>
   </div>
 
@@ -27,6 +59,8 @@
       Platformă Teme de Licență
     </h1>
     <p class="text-muted">Găsește tema perfectă și profesorul potrivit</p>
+
+    <div *ngIf="user?.role === 'admin'" class="alert alert-warning mt-3">🔧 Admin Mode activ</div>
   </div>
 
   <div *ngIf="!user || user?.role !== 'profesor'" class="row justify-content-center">
@@ -72,7 +106,10 @@
     </div>
   </div>
 
-  <div *ngIf="user?.role === 'profesor'" class="row justify-content-center">
+  <div
+    *ngIf="user?.role === 'profesor' || user?.role === 'admin'"
+    class="row justify-content-center"
+  >
     <div class="col-md-8">
       <div class="card shadow-lg border-0 p-4">
         <h4 class="fw-bold mb-3">
