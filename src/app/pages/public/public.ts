@@ -56,7 +56,7 @@ export class PublicComponent implements OnInit {
   loadThemes() {
     this.ulbs.getThemes().subscribe((res: any) => {
       console.log('THEMES:', res);
-      this.themes = res;
+      this.themes = res || [];
       this.cdr.detectChanges();
     });
   }
@@ -69,7 +69,7 @@ export class PublicComponent implements OnInit {
         this.searchProfessor,
       )
       .subscribe((res: any) => {
-        this.themes = res;
+        this.themes = res || [];
       });
   }
 
@@ -215,6 +215,36 @@ export class PublicComponent implements OnInit {
       alert('Student acceptat');
 
       this.loadThemes();
+    });
+  }
+
+  getVisitorId() {
+    let id = localStorage.getItem('visitor_id');
+
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem('visitor_id', id);
+    }
+
+    return id;
+  }
+
+  like(theme: any) {
+    if (theme.liked) return;
+
+    const visitorId = this.getVisitorId();
+
+    this.ulbs.likeTheme(theme.id, visitorId).subscribe({
+      next: (res: any) => {
+        theme.likes = res.likes;
+
+        theme.liked = true; 
+
+        this.themes = [...this.themes]; 
+      },
+      error: () => {
+        alert('Ai dat deja like');
+      },
     });
   }
 

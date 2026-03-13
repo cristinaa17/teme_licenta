@@ -58,4 +58,14 @@ export class UlbsService {
   acceptApplicant(id: number) {
     return this.http.post(`http://localhost:3000/api/applications/${id}/accept`, {});
   }
+
+  likeTheme(themeId: number, visitorId: string) {
+    return this.http.post(`http://localhost:3000/api/themes/${themeId}/like`, {
+      visitor_id: visitorId,
+    });
+  }
+
+  getLikes(themeId: number) {
+    return this.http.get<any>(`http://localhost:3000/api/themes/${themeId}/likes`);
+  }
 }

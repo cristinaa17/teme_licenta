@@ -149,15 +149,21 @@ app.post('/api/themes', async (req, res) => {
     res.status(500).send('Error saving theme');
   }
 });
-
 app.get('/api/themes', async (req, res) => {
+
   const { facultyId, specializationId, professor } = req.query;
 
   try {
+
     let query = `
       SELECT 
         t.*,
-        u.name as professor_name
+        u.name as professor_name,
+        (
+          SELECT COUNT(*) 
+          FROM theme_likes l
+          WHERE l.theme_id = t.id
+        )::int as likes
       FROM themes t
       JOIN users u ON t.professor_email = u.email
       WHERE 1=1
@@ -181,13 +187,19 @@ app.get('/api/themes', async (req, res) => {
       values.push(`%${professor}%`);
     }
 
+    query += ` ORDER BY t.id DESC`;
+
     const result = await pool.query(query, values);
 
     res.json(result.rows);
+
   } catch (err) {
+
     console.error(err);
-    res.status(500).send('Error fetching themes');
+    res.status(500).send("Error fetching themes");
+
   }
+
 });
 
 app.delete('/api/themes/:id', async (req, res) => {
@@ -349,6 +361,43 @@ app.post('/api/applications/:id/accept', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send('Error');
+  }
+});
+
+app.post('/api/themes/:id/like', async (req, res) => {
+  const { id } = req.params;
+  const { visitor_id } = req.body;
+
+  try {
+    const existing = await pool.query(
+      `SELECT 1 FROM theme_likes
+       WHERE theme_id=$1 AND visitor_id=$2`,
+      [id, visitor_id],
+    );
+
+    let liked = false;
+
+    if (existing.rows.length === 0) {
+      await pool.query('INSERT INTO theme_likes(theme_id, visitor_id) VALUES($1,$2)', [
+        id,
+        visitor_id,
+      ]);
+      liked = true;
+    }
+
+    const count = await pool.query(
+      `SELECT COUNT(*)::int as likes FROM theme_likes WHERE theme_id=$1`,
+      [id],
+    );
+
+    res.json({
+      liked: liked,
+      likes: count.rows[0].likes,
+      message: existing.rows.length === 0 ? 'Like added' : 'Already liked',
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error liking theme');
   }
 });
 
