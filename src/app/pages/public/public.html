@@ -60,10 +60,96 @@
     </h1>
     <p class="text-muted">Găsește tema perfectă și profesorul potrivit</p>
 
+    <div *ngIf="user?.role === 'profesor' && progress" class="alert alert-info mt-3">
+      Ai adăugat <b>{{ progress.created }}</b> din <b>{{ progress.required }}</b> teme obligatorii.
+    </div>
+
+    <div *ngIf="user?.role === 'profesor' && progress" class="mb-3">
+      <p>
+        Progres teme:
+        {{ progress.created }} / {{ progress.required }}
+      </p>
+
+      <div class="progress">
+        <div
+          class="progress-bar"
+          role="progressbar"
+          [style.width.%]="(progress.created / progress.required) * 100"
+        ></div>
+      </div>
+    </div>
+
     <div *ngIf="user?.role === 'admin'" class="alert alert-warning mt-3">🔧 Admin Mode activ</div>
+    <div *ngIf="user?.role === 'admin'" class="card shadow-sm p-4 mb-4">
+      <h5 class="mb-3">
+        <i class="bi bi-gear me-2"></i>
+        Administrare teme profesori
+      </h5>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Profesor</th>
+              <th>Teme existente</th>
+              <th>Teme obligatorii</th>
+              <th>Progres</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let p of professors">
+              <td>
+                {{ p.name }}
+              </td>
+
+              <td>
+                {{ p.created_themes || 0 }}
+              </td>
+
+              <td style="width: 120px">
+                <input
+                  type="number"
+                  class="form-control form-control-sm"
+                  [(ngModel)]="p.required_themes"
+                  min="0"
+                />
+              </td>
+              <td style="width: 200px">
+                <div class="progress">
+                  <div
+                    class="progress-bar"
+                    role="progressbar"
+                    [style.width.%]="(p.created_themes / (p.required_themes || 1)) * 100"
+                  ></div>
+                </div>
+              </td>
+
+              <td>
+                <span *ngIf="p.created_themes >= p.required_themes" class="badge bg-success">
+                  Complet
+                </span>
+
+                <span *ngIf="p.created_themes < p.required_themes" class="badge bg-danger">
+                  Incomplet
+                </span>
+              </td>
+
+              <td>
+                <button class="btn btn-sm btn-primary" (click)="setRequiredThemes(p)">
+                  Salvează
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
-  <div *ngIf="!user || user?.role !== 'profesor'" class="row justify-content-center">
+  <div *ngIf="!user || user?.role === 'student' || user?.role === 'admin'" class="row justify-content-center">
     <div class="col-md-8">
       <div class="card shadow-lg border-0 p-4">
         <h4 class="mb-3">
@@ -107,7 +193,7 @@
   </div>
 
   <div
-    *ngIf="user?.role === 'profesor' || user?.role === 'admin'"
+    *ngIf="user?.role === 'profesor'"
     class="row justify-content-center"
   >
     <div class="col-md-8">
@@ -192,7 +278,7 @@
           <small *ngIf="t.status === 'taken'" class="text-danger d-block"> Temă ocupată </small>
 
           <button
-            *ngIf="user && user.role !== 'profesor' && t.status !== 'taken'"
+            *ngIf="user && user.role === 'student' && t.status !== 'taken'"
             class="btn btn-success btn-sm mt-2"
             (click)="apply(t)"
           >

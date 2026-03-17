@@ -36,6 +36,7 @@ export class PublicComponent implements OnInit {
   isImpersonating = false;
   applicants: any[] = [];
   selectedTheme: number | null = null;
+  progress: any = null;
 
   private cdr = inject(ChangeDetectorRef);
 
@@ -62,6 +63,12 @@ export class PublicComponent implements OnInit {
     if (this.user?.role === 'admin') {
       this.ulbs.getProfessors().subscribe((res: any) => {
         this.professors = res;
+      });
+    }
+
+    if (this.user?.role === 'profesor') {
+      this.ulbs.getProfessorProgress(this.user.email).subscribe((res: any) => {
+        this.progress = res;
       });
     }
 
@@ -308,6 +315,12 @@ export class PublicComponent implements OnInit {
     return this.professors.filter((p: any) =>
       p.name.toLowerCase().includes(this.searchProfessor.toLowerCase()),
     );
+  }
+
+  setRequiredThemes(prof: any) {
+    this.ulbs.setRequiredThemes(prof.email, prof.required_themes).subscribe(() => {
+      alert('Număr teme actualizat');
+    });
   }
 
   logout() {

@@ -404,9 +404,72 @@ app.post('/api/admin/impersonate', async (req, res) => {
 });
 
 app.get('/api/professors', async (req, res) => {
-  const result = await pool.query("SELECT email, name FROM users WHERE role='profesor'");
+  try {
+    const result = await pool.query(`
+      SELECT 
+        u.email,
+        u.name,
+        COALESCE(u.required_themes,0) AS required_themes,
+        COUNT(t.id)::int AS created_themes
+      FROM users u
+      LEFT JOIN themes t 
+        ON u.email = t.professor_email
+      WHERE u.role = 'profesor'
+      GROUP BY u.email, u.name, u.required_themes
+      ORDER BY u.name
+    `);
 
-  res.json(result.rows);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('PROFESSORS ERROR:', err);
+    res.status(500).send('Error');
+  }
+});
+
+app.put('/api/admin/set-required-themes', async (req, res) => {
+  const { email, count } = req.body;
+
+  try {
+    await pool.query(
+      `UPDATE users
+       SET required_themes=$1
+       WHERE email=$2`,
+      [count, email],
+    );
+
+    res.json({ message: 'Updated' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error');
+  }
+});
+
+app.get('/api/professor/theme-progress/:email', async (req, res) => {
+  const { email } = req.params;
+
+  try {
+    const required = await pool.query(
+      `SELECT required_themes
+       FROM users
+       WHERE email=$1`,
+      [email],
+    );
+
+    const created = await pool.query(
+      `SELECT COUNT(*)::int
+       FROM themes
+       WHERE professor_email=$1`,
+      [email],
+    );
+
+    res.json({
+      required: required.rows[0].required_themes || 0,
+      created: created.rows[0].count,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error');
+  }
 });
 
 app.listen(PORT, () => {
