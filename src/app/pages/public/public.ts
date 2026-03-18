@@ -26,6 +26,8 @@ export class PublicComponent implements OnInit {
   private auth = inject(AuthService);
   private ulbs = inject(UlbsService);
 
+  Math = Math;
+
   selectedFaculty: string = '';
   selectedSpecialization: string = '';
   profFaculty: string = '';
@@ -45,6 +47,7 @@ export class PublicComponent implements OnInit {
   specializations: any[] = [];
   themes: any[] = [];
   isSaving = false;
+  isSearching = false;
   editingThemeId: number | null = null;
   editData = { title: '', description: '' };
 
@@ -90,12 +93,14 @@ export class PublicComponent implements OnInit {
   }
 
   search() {
+    this.isSearching = true;
     this.ulbs
       .getThemes(
         Number(this.selectedFaculty),
         Number(this.selectedSpecialization),
         this.searchProfessor,
       )
+      .pipe(finalize(() => this.isSearching = false))
       .subscribe((res: any) => {
         this.themes = res || [];
       });
@@ -109,6 +114,15 @@ export class PublicComponent implements OnInit {
       alert('Trebuie să fii logat pentru a adăuga o temă');
       return;
     }
+
+    if (this.user?.role === 'profesor' && this.progress) {
+  const max = (this.progress.required || 0) + (this.progress.extra || 0);
+
+  if (this.progress.created >= max) {
+    alert(`Ai atins limita de ${max} teme`);
+    return;
+  }
+}
 
     if (this.isSaving) return;
 
@@ -147,6 +161,11 @@ export class PublicComponent implements OnInit {
           this.profSpecialization = '';
 
           this.loadThemes();
+          if (this.user?.role === 'profesor') {
+  this.ulbs.getProfessorProgress(this.user.email).subscribe((res: any) => {
+    this.progress = res;
+  });
+}
         },
         error: (err) => {
           console.error('Eroare la salvare temă:', err);
@@ -301,14 +320,6 @@ export class PublicComponent implements OnInit {
     }
   }
 
-  openProfessorList() {
-    this.ulbs.getProfessors().subscribe((res: any) => {
-      this.professors = res;
-
-      this.showProfessorList = true;
-    });
-  }
-
   get filteredProfessors() {
     if (!this.searchProfessor) return this.professors;
 
@@ -318,10 +329,42 @@ export class PublicComponent implements OnInit {
   }
 
   setRequiredThemes(prof: any) {
-    this.ulbs.setRequiredThemes(prof.email, prof.required_themes).subscribe(() => {
+  this.ulbs
+    .setRequiredThemes(
+      prof.email,
+      prof.required_themes,
+      prof.extra_themes || 0
+    )
+    .subscribe(() => {
       alert('Număr teme actualizat');
     });
-  }
+}
+
+getRequiredProgress(p: any): number {
+  const total = (p.required_themes || 0) + (p.extra_themes || 0);
+  if (total === 0) return 0;
+
+  const requiredDone = Math.min(p.created_themes, p.required_themes);
+  return (requiredDone / total) * 100;
+}
+
+getExtraProgress(p: any): number {
+  const total = (p.required_themes || 0) + (p.extra_themes || 0);
+  if (total === 0) return 0;
+
+  if (p.created_themes <= p.required_themes) return 0;
+
+  const extraDone = Math.min(
+    p.created_themes - p.required_themes,
+    p.extra_themes || 0
+  );
+
+  return (extraDone / total) * 100;
+}
+
+getRequiredDone(p: any): number {
+  return Math.min(p.created_themes, p.required_themes);
+}
 
   logout() {
     this.auth.logout();

@@ -77,8 +77,12 @@ export class UlbsService {
     return this.http.get(`${this.baseUrl}/professors`);
   }
 
-  setRequiredThemes(email: string, count: number) {
-    return this.http.put(`${this.baseUrl}/admin/set-required-themes`, { email, count });
+  setRequiredThemes(email: string, count: number, extra: number) {
+    return this.http.put(`${this.baseUrl}/admin/set-required-themes`, {
+      email,
+      count,
+      extra,
+    });
   }
 
   getProfessorProgress(email: string) {

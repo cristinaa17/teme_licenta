@@ -128,6 +128,26 @@ app.post('/api/themes', async (req, res) => {
   }
 
   try {
+    const countRes = await pool.query(`SELECT COUNT(*)::int FROM themes WHERE professor_email=$1`, [
+      professor_email,
+    ]);
+
+    const userRes = await pool.query(
+      `SELECT required_themes, extra_themes FROM users WHERE email=$1`,
+      [professor_email],
+    );
+
+    const created = countRes.rows[0].count;
+    const required = userRes.rows[0].required_themes || 0;
+    const extra = userRes.rows[0].extra_themes || 0;
+
+    const maxAllowed = required + extra;
+
+    if (created >= maxAllowed) {
+      return res.status(400).json({
+        message: `Ai voie maxim ${maxAllowed} teme`,
+      });
+    }
     const result = await pool.query(
       `INSERT INTO themes 
   (title, description, professor_email, faculty_id, specialization_id, faculty_name, specialization_name)
@@ -410,12 +430,13 @@ app.get('/api/professors', async (req, res) => {
         u.email,
         u.name,
         COALESCE(u.required_themes,0) AS required_themes,
-        COUNT(t.id)::int AS created_themes
+COALESCE(u.extra_themes,0) AS extra_themes,
+COUNT(t.id)::int AS created_themes
       FROM users u
       LEFT JOIN themes t 
         ON u.email = t.professor_email
       WHERE u.role = 'profesor'
-      GROUP BY u.email, u.name, u.required_themes
+      GROUP BY u.email, u.name, u.required_themes, u.extra_themes
       ORDER BY u.name
     `);
 
@@ -427,14 +448,14 @@ app.get('/api/professors', async (req, res) => {
 });
 
 app.put('/api/admin/set-required-themes', async (req, res) => {
-  const { email, count } = req.body;
+  const { email, count, extra } = req.body;
 
   try {
     await pool.query(
       `UPDATE users
-       SET required_themes=$1
-       WHERE email=$2`,
-      [count, email],
+       SET required_themes=$1, extra_themes=$2
+       WHERE email=$3`,
+      [count, extra, email],
     );
 
     res.json({ message: 'Updated' });
@@ -449,7 +470,7 @@ app.get('/api/professor/theme-progress/:email', async (req, res) => {
 
   try {
     const required = await pool.query(
-      `SELECT required_themes
+      `SELECT required_themes, extra_themes
        FROM users
        WHERE email=$1`,
       [email],
@@ -464,6 +485,7 @@ app.get('/api/professor/theme-progress/:email', async (req, res) => {
 
     res.json({
       required: required.rows[0].required_themes || 0,
+      extra: required.rows[0].extra_themes || 0,
       created: created.rows[0].count,
     });
   } catch (err) {
