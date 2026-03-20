@@ -88,4 +88,16 @@ export class UlbsService {
   getProfessorProgress(email: string) {
     return this.http.get(`${this.baseUrl}/professor/theme-progress/${email}`);
   }
+
+  sendReminder(email: string) {
+    return this.http.post(`${this.baseUrl}/reminder`, { email });
+  }
+
+  getNotifications(email: string) {
+    return this.http.get(`${this.baseUrl}/notifications/${email}`);
+  }
+
+  markNotificationsSeen(email: string) {
+    return this.http.post(`${this.baseUrl}/notifications/seen`, { email });
+  }
 }

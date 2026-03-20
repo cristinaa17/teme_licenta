@@ -39,6 +39,7 @@ export class PublicComponent implements OnInit {
   applicants: any[] = [];
   selectedTheme: number | null = null;
   progress: any = null;
+  notifications: any[] = [];
 
   private cdr = inject(ChangeDetectorRef);
 
@@ -62,6 +63,10 @@ export class PublicComponent implements OnInit {
     this.user = this.auth.getUser();
 
     this.isImpersonating = !!localStorage.getItem('original_admin');
+
+    if (this.user?.role === 'profesor') {
+      this.loadNotifications();
+    }
 
     if (this.user?.role === 'admin') {
       this.ulbs.getProfessors().subscribe((res: any) => {
@@ -100,7 +105,7 @@ export class PublicComponent implements OnInit {
         Number(this.selectedSpecialization),
         this.searchProfessor,
       )
-      .pipe(finalize(() => this.isSearching = false))
+      .pipe(finalize(() => (this.isSearching = false)))
       .subscribe((res: any) => {
         this.themes = res || [];
       });
@@ -116,13 +121,13 @@ export class PublicComponent implements OnInit {
     }
 
     if (this.user?.role === 'profesor' && this.progress) {
-  const max = (this.progress.required || 0) + (this.progress.extra || 0);
+      const max = (this.progress.required || 0) + (this.progress.extra || 0);
 
-  if (this.progress.created >= max) {
-    alert(`Ai atins limita de ${max} teme`);
-    return;
-  }
-}
+      if (this.progress.created >= max) {
+        alert(`Ai atins limita de ${max} teme`);
+        return;
+      }
+    }
 
     if (this.isSaving) return;
 
@@ -162,10 +167,10 @@ export class PublicComponent implements OnInit {
 
           this.loadThemes();
           if (this.user?.role === 'profesor') {
-  this.ulbs.getProfessorProgress(this.user.email).subscribe((res: any) => {
-    this.progress = res;
-  });
-}
+            this.ulbs.getProfessorProgress(this.user.email).subscribe((res: any) => {
+              this.progress = res;
+            });
+          }
         },
         error: (err) => {
           console.error('Eroare la salvare temă:', err);
@@ -329,42 +334,60 @@ export class PublicComponent implements OnInit {
   }
 
   setRequiredThemes(prof: any) {
-  this.ulbs
-    .setRequiredThemes(
-      prof.email,
-      prof.required_themes,
-      prof.extra_themes || 0
-    )
-    .subscribe(() => {
-      alert('Număr teme actualizat');
+    this.ulbs
+      .setRequiredThemes(prof.email, prof.required_themes, prof.extra_themes || 0)
+      .subscribe(() => {
+        alert('Număr teme actualizat');
+      });
+  }
+
+  getRequiredProgress(p: any): number {
+    const total = (p.required_themes || 0) + (p.extra_themes || 0);
+    if (total === 0) return 0;
+
+    const requiredDone = Math.min(p.created_themes, p.required_themes);
+    return (requiredDone / total) * 100;
+  }
+
+  getExtraProgress(p: any): number {
+    const total = (p.required_themes || 0) + (p.extra_themes || 0);
+    if (total === 0) return 0;
+
+    if (p.created_themes <= p.required_themes) return 0;
+
+    const extraDone = Math.min(p.created_themes - p.required_themes, p.extra_themes || 0);
+
+    return (extraDone / total) * 100;
+  }
+
+  getRequiredDone(p: any): number {
+    return Math.min(p.created_themes, p.required_themes);
+  }
+
+  sendReminder(prof: any) {
+    if (!confirm(`Trimite reminder către ${prof.name}?`)) return;
+
+    this.ulbs.sendReminder(prof.email).subscribe({
+      next: () => {
+        alert('Reminder trimis cu succes');
+      },
+      error: () => {
+        alert('Eroare la trimitere reminder');
+      },
     });
-}
+  }
 
-getRequiredProgress(p: any): number {
-  const total = (p.required_themes || 0) + (p.extra_themes || 0);
-  if (total === 0) return 0;
+  loadNotifications() {
+    this.ulbs.getNotifications(this.user.email).subscribe((res: any) => {
+      this.notifications = res;
+    });
+  }
 
-  const requiredDone = Math.min(p.created_themes, p.required_themes);
-  return (requiredDone / total) * 100;
-}
-
-getExtraProgress(p: any): number {
-  const total = (p.required_themes || 0) + (p.extra_themes || 0);
-  if (total === 0) return 0;
-
-  if (p.created_themes <= p.required_themes) return 0;
-
-  const extraDone = Math.min(
-    p.created_themes - p.required_themes,
-    p.extra_themes || 0
-  );
-
-  return (extraDone / total) * 100;
-}
-
-getRequiredDone(p: any): number {
-  return Math.min(p.created_themes, p.required_themes);
-}
+  markSeen() {
+    this.ulbs.markNotificationsSeen(this.user.email).subscribe(() => {
+      this.notifications = [];
+    });
+  }
 
   logout() {
     this.auth.logout();

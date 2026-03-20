@@ -494,6 +494,38 @@ app.get('/api/professor/theme-progress/:email', async (req, res) => {
   }
 });
 
+app.post('/api/reminder', async (req, res) => {
+  const { email } = req.body;
+
+  await pool.query(`INSERT INTO notifications (email, message) VALUES ($1, $2)`, [
+    email,
+    'Nu ai atins numărul de teme obligatorii',
+  ]);
+
+  console.log(`Reminder trimis către ${email}`);
+
+  res.json({ success: true });
+});
+
+app.get('/api/notifications/:email', async (req, res) => {
+  const { email } = req.params;
+
+  const result = await pool.query(
+    'SELECT * FROM notifications WHERE email = $1 ORDER BY created_at DESC',
+    [email],
+  );
+
+  res.json(result.rows);
+});
+
+app.post('/api/notifications/seen', async (req, res) => {
+  const { email } = req.body;
+
+  await pool.query('UPDATE notifications SET seen = true WHERE email = $1', [email]);
+
+  res.json({ success: true });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
