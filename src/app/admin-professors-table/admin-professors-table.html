@@ -1,0 +1,68 @@
+<mat-card class="modern-card" *ngIf="user?.role === 'admin'">
+  <h4 class="mb-3">Administrare teme profesori</h4>
+
+  <div class="admin-grid">
+    <div *ngFor="let p of professors" class="prof-card">
+      <div class="prof-header">
+        <div class="prof-name">👨‍🏫 {{ p.name }}</div>
+
+        <span
+          class="status"
+          [ngClass]="{
+            success: p.created_themes >= p.required_themes,
+            danger: p.created_themes < p.required_themes,
+          }"
+        >
+          {{ p.created_themes >= p.required_themes ? 'Complet' : 'Incomplet' }}
+        </span>
+      </div>
+
+      <div class="prof-stats">
+        <div class="stat">
+          <span class="label">Existente</span>
+          <span class="value">{{ p.created_themes || 0 }}</span>
+        </div>
+
+        <div class="stat">
+          <span class="label">Obligatorii</span>
+          <input type="number" [(ngModel)]="p.required_themes" min="0" />
+        </div>
+
+        <div class="stat">
+          <span class="label">Extra</span>
+          <input type="number" [(ngModel)]="p.extra_themes" min="0" />
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-bar">
+          <span [style.width.%]="getRequiredProgress(p)"></span>
+        </div>
+
+        <div class="progress-bar extra" *ngIf="p.extra_themes">
+          <span [style.width.%]="getExtraProgress(p)"></span>
+        </div>
+
+        <div class="progress-text">
+          Obligatorii: {{ getRequiredDone(p) }} / {{ p.required_themes }}
+        </div>
+
+        <div class="progress-text" *ngIf="p.extra_themes">
+          Extra: {{ getExtraDone(p) }} / {{ p.extra_themes }}
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="save-btn" (click)="setRequiredThemes(p)">Salvează</button>
+
+        <button
+          *ngIf="p.created_themes < p.required_themes"
+          class="warn-btn"
+          (click)="sendReminder(p)"
+        >
+          Reminder
+        </button>
+      </div>
+    </div>
+  </div>
+</mat-card>

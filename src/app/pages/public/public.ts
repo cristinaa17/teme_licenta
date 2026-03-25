@@ -7,7 +7,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { RouterModule } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { AdminProfessorsTableComponent } from '../../admin-professors-table/admin-professors-table';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 @Component({
   standalone: true,
@@ -18,6 +26,14 @@ import { MatMenuModule } from '@angular/material/menu';
     FormsModule,
     RouterModule,
     MatMenuModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCardModule,
+    AdminProfessorsTableComponent,
+    MatSlideToggleModule,
+    MatAutocompleteModule,
   ],
   templateUrl: './public.html',
   styleUrls: ['./public.css'],
@@ -40,17 +56,21 @@ export class PublicComponent implements OnInit {
   selectedTheme: number | null = null;
   progress: any = null;
   notifications: any[] = [];
-
+  allThemes: any[] = [];
+  showAllThemes = false;
   private cdr = inject(ChangeDetectorRef);
 
   user: any = null;
   faculties: any[] = [];
   specializations: any[] = [];
   themes: any[] = [];
+  myThemes: any[] = [];
   isSaving = false;
   isSearching = false;
+  searchTimeout: any;
   editingThemeId: number | null = null;
   editData = { title: '', description: '' };
+  showNotifications = false;
 
   newTheme = {
     title: '',
@@ -91,26 +111,64 @@ export class PublicComponent implements OnInit {
 
   loadThemes() {
     this.ulbs.getThemes().subscribe((res: any) => {
-      console.log('THEMES:', res);
-      this.themes = res || [];
+      this.allThemes = res || [];
+
+      if (this.user?.role === 'profesor') {
+        this.myThemes = this.allThemes.filter((t) => t.professor_email === this.user?.email);
+
+        this.themes = this.myThemes;
+      } else {
+        this.themes = this.allThemes;
+      }
+      console.log('ALL THEMES:', this.allThemes);
       this.cdr.detectChanges();
     });
   }
 
-  search() {
-    this.isSearching = true;
-    this.ulbs
-      .getThemes(
-        Number(this.selectedFaculty),
-        Number(this.selectedSpecialization),
-        this.searchProfessor,
-      )
-      .pipe(finalize(() => (this.isSearching = false)))
-      .subscribe((res: any) => {
-        this.themes = res || [];
-      });
+  toggleThemesView() {
+    if (this.showAllThemes) {
+      this.themes = this.allThemes;
+    } else {
+      this.themes = this.myThemes;
+    }
   }
 
+  toggleNotifications() {
+    this.showNotifications = !this.showNotifications;
+  }
+
+  search() {
+    this.filterThemes();
+  }
+
+  getFacultyName(id: string) {
+    return this.faculties.find((f) => f.id == id)?.name;
+  }
+
+  getSpecializationName(id: string) {
+    return this.specializations.find((s) => s.id == id)?.name;
+  }
+
+  filterThemes(): void {
+    const search = (this.searchProfessor || '').toLowerCase();
+
+    this.themes = this.allThemes.filter((t) => {
+      const matchProfessor = !search || t.professor_email?.toLowerCase().includes(search);
+
+      const matchFaculty =
+        !this.selectedFaculty || t.faculty_name === this.getFacultyName(this.selectedFaculty);
+
+      const matchSpecialization =
+        !this.selectedSpecialization ||
+        t.specialization_name === this.getSpecializationName(this.selectedSpecialization);
+
+      return matchProfessor && matchFaculty && matchSpecialization;
+    });
+  }
+
+  onSearchChange(): void {
+    this.filterThemes();
+  }
   addTheme(event?: MouseEvent) {
     event?.preventDefault();
     event?.stopPropagation();
@@ -134,12 +192,13 @@ export class PublicComponent implements OnInit {
     const title = this.newTheme.title?.trim();
     const desc = this.newTheme.description?.trim();
 
-    console.log('ADD THEME CLICKED');
-    console.log('TITLE:', title);
-    console.log('DESC:', desc);
-
     if (!title || !desc) {
       alert('Completează titlul și descrierea!');
+      return;
+    }
+
+    if (!this.selectedFaculty || !this.selectedSpecialization) {
+      alert('Selectează facultatea și specializarea!');
       return;
     }
 
@@ -149,12 +208,12 @@ export class PublicComponent implements OnInit {
       title,
       description: desc,
       professor_email: this.user.email,
-      faculty_id: this.profFaculty ? Number(this.profFaculty) : null,
-      specialization_id: this.profSpecialization ? Number(this.profSpecialization) : null,
-      faculty_name: this.faculties.find((f) => f.id == this.profFaculty)?.name,
-      specialization_name: this.specializations.find((s) => s.id == this.profSpecialization)?.name,
+      faculty_id: Number(this.selectedFaculty),
+      specialization_id: Number(this.selectedSpecialization),
+      faculty_name: this.faculties.find((f) => f.id == this.selectedFaculty)?.name || '',
+      specialization_name:
+        this.specializations.find((s) => s.id == this.selectedSpecialization)?.name || '',
     };
-
     this.ulbs
       .addTheme(payload)
       .pipe(finalize(() => (this.isSaving = false)))
@@ -164,8 +223,10 @@ export class PublicComponent implements OnInit {
           this.newTheme.description = '';
           this.profFaculty = '';
           this.profSpecialization = '';
+          this.specializations = [];
 
           this.loadThemes();
+
           if (this.user?.role === 'profesor') {
             this.ulbs.getProfessorProgress(this.user.email).subscribe((res: any) => {
               this.progress = res;
@@ -192,11 +253,11 @@ export class PublicComponent implements OnInit {
     this.ulbs.getSpecializations(facultyId).subscribe((res: any) => {
       this.specializations = res.data || [];
 
-      if (!isProfessor) {
-        this.search();
-      }
-
       this.cdr.detectChanges();
+
+      if (!isProfessor) {
+        this.filterThemes(); 
+      }
     });
   }
 
@@ -219,14 +280,25 @@ export class PublicComponent implements OnInit {
 
   saveEdit(id: number) {
     if (!this.user) return;
+
     this.ulbs
       .updateTheme(id, {
         ...this.editData,
         email: this.user.email,
       })
       .subscribe(() => {
+        const index = this.allThemes.findIndex((t) => t.id === id);
+
+        if (index !== -1) {
+          this.allThemes[index] = {
+            ...this.allThemes[index],
+            ...this.editData,
+          };
+        }
+
+        this.filterThemes();
+
         this.editingThemeId = null;
-        this.search();
       });
   }
 
@@ -252,16 +324,35 @@ export class PublicComponent implements OnInit {
   }
 
   viewApplicants(theme: any) {
-    this.selectedTheme = theme.id;
+    this.selectedTheme = this.selectedTheme === theme.id ? null : theme.id;
 
-    this.ulbs.getApplicants(theme.id).subscribe((res: any) => {
-      this.applicants = res;
+    if (this.selectedTheme === null) {
+      this.applicants = [];
+      return;
+    }
+
+    this.ulbs.getApplicants(theme.id).subscribe({
+      next: (res: any) => {
+        console.log('THEME ID:', theme.id);
+        console.log('APPLICANTS RESPONSE:', res);
+
+        this.applicants = res.data || res || [];
+      },
+      error: (err) => {
+        console.error('Eroare la getApplicants:', err);
+        this.applicants = [];
+      },
     });
   }
 
   accept(id: number) {
     this.ulbs.acceptApplicant(id).subscribe(() => {
       alert('Student acceptat');
+      this.applicants = this.applicants.filter((a) => a.id !== id);
+
+      if (this.applicants.length === 0) {
+        this.selectedTheme = null;
+      }
 
       this.loadThemes();
     });
@@ -342,26 +433,29 @@ export class PublicComponent implements OnInit {
   }
 
   getRequiredProgress(p: any): number {
-    const total = (p.required_themes || 0) + (p.extra_themes || 0);
-    if (total === 0) return 0;
+    if (!p.required_themes) return 0;
 
-    const requiredDone = Math.min(p.created_themes, p.required_themes);
-    return (requiredDone / total) * 100;
+    const done = Math.min(p.created_themes, p.required_themes);
+
+    return (done / p.required_themes) * 100;
   }
 
   getExtraProgress(p: any): number {
-    const total = (p.required_themes || 0) + (p.extra_themes || 0);
-    if (total === 0) return 0;
+    if (!p.extra_themes) return 0;
 
     if (p.created_themes <= p.required_themes) return 0;
 
-    const extraDone = Math.min(p.created_themes - p.required_themes, p.extra_themes || 0);
+    const extraDone = Math.min(p.created_themes - p.required_themes, p.extra_themes);
 
-    return (extraDone / total) * 100;
+    return (extraDone / p.extra_themes) * 100;
   }
 
   getRequiredDone(p: any): number {
     return Math.min(p.created_themes, p.required_themes);
+  }
+
+  getExtraDone(p: any): number {
+    return Math.max(0, p.created_themes - p.required_themes);
   }
 
   sendReminder(prof: any) {
@@ -384,8 +478,10 @@ export class PublicComponent implements OnInit {
   }
 
   markSeen() {
+    this.notifications = []; 
+
     this.ulbs.markNotificationsSeen(this.user.email).subscribe(() => {
-      this.notifications = [];
+      this.loadNotifications();
     });
   }
 

@@ -511,7 +511,9 @@ app.get('/api/notifications/:email', async (req, res) => {
   const { email } = req.params;
 
   const result = await pool.query(
-    'SELECT * FROM notifications WHERE email = $1 ORDER BY created_at DESC',
+    `SELECT * FROM notifications 
+     WHERE email = $1 AND seen = false
+     ORDER BY created_at DESC`,
     [email],
   );
 

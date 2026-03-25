@@ -52,7 +52,7 @@ export class UlbsService {
   }
 
   getApplicants(themeId: number) {
-    return this.http.get(`${this.baseUrl}/api/themes/${themeId}/applications`);
+    return this.http.get(`${this.baseUrl}/themes/${themeId}/applications`);
   }
 
   acceptApplicant(id: number) {
