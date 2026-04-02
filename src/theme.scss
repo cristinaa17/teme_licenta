@@ -1,0 +1,177 @@
+@use '@angular/material' as mat;
+@use 'styles/variables' as vars;
+
+// Include the common styles for Angular Material
+@include mat.elevation-classes();
+@include mat.app-background();
+
+// Define a custom typography configuration
+$custom-typography: mat.m2-define-typography-config(
+  $font-family: vars.$font-family-primary,
+  $headline-1: mat.m2-define-typography-level(vars.$font-size-3xl, 1.3, vars.$font-weight-bold),
+  $headline-2: mat.m2-define-typography-level(vars.$font-size-2xl, 1.3, vars.$font-weight-bold),
+  $headline-3: mat.m2-define-typography-level(vars.$font-size-xl, 1.3, vars.$font-weight-bold),
+  $headline-4: mat.m2-define-typography-level(vars.$font-size-lg, 1.3, vars.$font-weight-semibold),
+  $headline-5: mat.m2-define-typography-level(vars.$font-size-base, 1.3, vars.$font-weight-semibold),
+  $headline-6: mat.m2-define-typography-level(vars.$font-size-sm, 1.3, vars.$font-weight-semibold),
+  $body-1: mat.m2-define-typography-level(vars.$font-size-base, 1.5, vars.$font-weight-normal),
+  $body-2: mat.m2-define-typography-level(vars.$font-size-sm, 1.5, vars.$font-weight-normal),
+  $caption: mat.m2-define-typography-level(vars.$font-size-xs, 1.5, vars.$font-weight-normal),
+  $button: mat.m2-define-typography-level(vars.$font-size-sm, 1.5, vars.$font-weight-medium)
+);
+
+// Define a custom primary palette based on ULBS brand color
+$ulbs-primary: (
+  50: #e1e7f0,
+  100: #b4c3da,
+  200: #829bc1,
+  300: #5073a8,
+  400: #2b5595,
+  500: vars.$color-primary,
+  // #0B2F63 - Main brand color
+  600: #0a2a5a,
+  700: #08234f,
+  800: #061d45,
+  900: #031233,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: white,
+    400: white,
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white
+  )
+);
+
+// Define a custom accent palette based on ULBS accent color
+$ulbs-accent: (
+  50: #fce4e7,
+  100: #f7bcc3,
+  200: #f2909b,
+  300: #ed6373,
+  400: #e94155,
+  500: vars.$color-accent,
+  // #F02137 - Brand accent color
+  600: #ee1d31,
+  700: #ec182a,
+  800: #e91423,
+  900: #e50b16,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: white,
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white
+  )
+);
+
+// Create the theme object with custom palettes
+$ulbs-theme: mat.m2-define-light-theme(
+  (
+    color: (
+      primary: mat.m2-define-palette($ulbs-primary, 500),
+      accent: mat.m2-define-palette($ulbs-accent, 500),
+      warn: mat.m2-define-palette(mat.$m2-red-palette, 500)
+    ),
+    typography: $custom-typography,
+    density: -1
+  )
+);
+
+// Apply the theme to all Material components
+@include mat.all-component-themes($ulbs-theme);
+
+// Apply typography globally
+@include mat.typography-hierarchy($custom-typography);
+
+// Additional theme customizations using Angular Material's theming system
+.mat-mdc-table {
+  background-color: vars.$bg-card;
+  border-radius: vars.$radius-lg;
+  overflow: hidden;
+  box-shadow: vars.$shadow-sm;
+
+  .mat-mdc-header-row {
+    background-color: mat.m2-get-color-from-palette($ulbs-primary, 500);
+    min-height: 48px;
+
+    .mat-mdc-header-cell {
+      color: mat.m2-get-contrast-color-from-palette($ulbs-primary, 500);
+      font-weight: vars.$font-weight-semibold;
+      border-bottom: none;
+      padding: vars.$spacing-sm vars.$spacing-md;
+    }
+  }
+
+  .mat-mdc-row {
+    min-height: 48px;
+    transition: background-color vars.$transition-fast;
+
+    &:hover {
+      background-color: vars.$bg-muted;
+    }
+
+    &:nth-child(even) {
+      background-color: vars.$bg-muted;
+
+      &:hover {
+        background-color: vars.$color-cararra;
+      }
+    }
+  }
+
+  .mat-mdc-cell {
+    color: vars.$text-secondary;
+    border-bottom: 1px solid vars.$border-default;
+    padding: vars.$spacing-sm vars.$spacing-md;
+  }
+}
+
+// Material card customizations
+.mat-mdc-card {
+  border-radius: vars.$radius-lg;
+  box-shadow: vars.$shadow-md;
+}
+
+// Material button customizations
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-flat-button {
+  border-radius: vars.$radius-md;
+}
+
+// Material form field customizations
+.mat-mdc-text-field-wrapper {
+  background-color: vars.$bg-input;
+  border-radius: vars.$radius-md;
+}
+
+// Material menu customizations
+.mat-mdc-menu-panel {
+  border-radius: vars.$radius-md;
+  box-shadow: vars.$shadow-lg;
+}
+
+// Material dialog customizations
+.mat-mdc-dialog-container {
+  border-radius: vars.$radius-lg;
+}
+
+// Material select customizations
+.mat-mdc-select-panel {
+  border-radius: vars.$radius-md;
+}
+
+.compact {
+  --mdc-filled-text-field-container-height: 36px;
+  --mdc-outlined-text-field-container-height: 36px;
+}

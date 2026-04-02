@@ -1,0 +1,90 @@
+<header class="header">
+  <div class="header-inner">
+    <div class="left-section">
+      <button class="logo-button">
+        <img src="assets/logo-ulbs.png" class="logo-img" />
+      </button>
+
+      <div class="title-wrapper">
+        <span class="app-title">Teme Licență ULBS</span>
+      </div>
+    </div>
+
+    <div *ngIf="user; else loginBtn" class="right-section">
+      <div class="notif-wrapper" *ngIf="user?.role === 'profesor'">
+        <button mat-icon-button (click)="toggleNotifications()">
+          <mat-icon>notifications</mat-icon>
+
+          <span *ngIf="notifications.length > 0" class="notif-badge">
+            {{ notifications.length }}
+          </span>
+        </button>
+
+        <div class="notif-dropdown" *ngIf="showNotifications">
+          <div class="notif-header">
+            <span>Notificări</span>
+
+            <button *ngIf="notifications.length > 0" (click)="markSeen()">Marchează</button>
+          </div>
+
+          <div class="notif-list">
+            <div *ngIf="notifications.length === 0" class="empty">🔕 Nu ai notificări</div>
+
+            <div *ngFor="let n of notifications" class="notif-item">
+              <span class="text">{{ n.message }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button
+        *ngIf="user?.role === 'admin'"
+        mat-raised-button
+        color="primary"
+        [matMenuTriggerFor]="profMenu"
+      >
+        Impersonare
+      </button>
+
+      <mat-menu #profMenu="matMenu" class="ulbs-menu">
+        <div class="px-3 py-2" (click)="$event.stopPropagation()">
+          <mat-form-field appearance="outline" class="w-100">
+            <input matInput placeholder="Caută profesor..." [(ngModel)]="searchProfessor" />
+          </mat-form-field>
+        </div>
+
+        <button mat-menu-item *ngFor="let p of filteredProfessors" (click)="impersonate(p.email)">
+          {{ p.name }}
+        </button>
+      </mat-menu>
+
+      <div class="user-wrapper">
+        <span class="user-name">
+          {{ user?.name }}
+        </span>
+
+        <button mat-icon-button [matMenuTriggerFor]="userMenu">
+          <mat-icon class="user-btn">account_circle</mat-icon>
+        </button>
+      </div>
+
+      <mat-menu #userMenu="matMenu" xPosition="after" yPosition="below">
+        <button mat-menu-item class="logout-item" (click)="logout()">Logout</button>
+      </mat-menu>
+
+      <button
+        *ngIf="isImpersonating"
+        mat-raised-button
+        color="primary"
+        (click)="stopImpersonation()"
+      >
+        <mat-icon>arrow_back</mat-icon>
+        Revino
+      </button>
+    </div>
+
+    <ng-template #loginBtn>
+      <button mat-raised-button color="primary" routerLink="/login">Login</button>
+    </ng-template>
+  </div>
+</header>

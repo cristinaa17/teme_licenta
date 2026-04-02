@@ -1,23 +1,23 @@
-<mat-card class="modern-card" *ngIf="user?.role === 'admin'">
-  <h4 class="mb-3">Administrare teme profesori</h4>
+<mat-card class="card admin-panel" *ngIf="user?.role === 'admin'">
+  <h4 class="admin-title">Administrare teme profesori</h4>
 
   <div class="admin-grid">
     <div *ngFor="let p of professors" class="prof-card">
       <div class="prof-header">
-        <div class="prof-name">👨‍🏫 {{ p.name }}</div>
+        <div class="prof-name">{{ p.name }}</div>
 
         <span
-          class="status"
+          class="status-badge"
           [ngClass]="{
-            success: p.created_themes >= p.required_themes,
-            danger: p.created_themes < p.required_themes,
+            'status-approved': p.created_themes >= p.required_themes,
+            'status-rejected': p.created_themes < p.required_themes,
           }"
         >
           {{ p.created_themes >= p.required_themes ? 'Complet' : 'Incomplet' }}
         </span>
       </div>
 
-      <div class="prof-stats">
+      <div class="prof-stats compact-form">
         <div class="stat">
           <span class="label">Existente</span>
           <span class="value">{{ p.created_themes || 0 }}</span>
@@ -53,11 +53,12 @@
       </div>
 
       <div class="actions">
-        <button class="save-btn" (click)="setRequiredThemes(p)">Salvează</button>
+        <button mat-raised-button color="primary" (click)="setRequiredThemes(p)">Salvează</button>
 
         <button
           *ngIf="p.created_themes < p.required_themes"
-          class="warn-btn"
+          mat-stroked-button
+          color="warn"
           (click)="sendReminder(p)"
         >
           Reminder

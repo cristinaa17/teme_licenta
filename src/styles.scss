@@ -1,0 +1,656 @@
+/* You can add global styles to this file, and also import other style files */
+@use 'styles/variables' as vars;
+@use 'theme';
+// ==========================================================================
+// Global Reset & Base Styles
+// ==========================================================================
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  font-family: vars.$font-family-primary;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+  font-size: vars.$font-size-base;
+  line-height: 1.5;
+  background-color: vars.$bg-body;
+  color: vars.$text-secondary;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-y: auto;
+}
+
+// ==========================================================================
+// Typography
+// ==========================================================================
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: vars.$font-family-heading;
+  font-weight: vars.$font-weight-bold;
+  color: vars.$text-heading;
+  margin-top: 0;
+  line-height: 1.3;
+}
+
+h1 {
+  font-size: vars.$font-size-3xl;
+}
+
+h2 {
+  font-size: vars.$font-size-2xl;
+}
+
+h3 {
+  font-size: vars.$font-size-xl;
+}
+
+// ==========================================================================
+// Form Elements
+// ==========================================================================
+
+button,
+input,
+select,
+textarea,
+mat-form-field,
+mat-label,
+mat-select,
+mat-input-element {
+  font-family: inherit;
+}
+
+// Native input/select/textarea (excludes Angular Material inputs)
+input:not([matInput]):not(.mat-mdc-input-element),
+select,
+textarea:not([matInput]):not(.mat-mdc-input-element) {
+  border-radius: vars.$radius-md;
+  border: 1px solid vars.$border-input;
+  padding: vars.$input-padding-y vars.$input-padding-x;
+  font-size: vars.$input-font-size;
+  transition: border-color vars.$transition-fast,
+  box-shadow vars.$transition-fast;
+
+  &:focus {
+    outline: none;
+    border-color: vars.$color-primary;
+    box-shadow: 0 0 0 2px vars.$color-primary-20;
+  }
+}
+
+// ==========================================================================
+// Angular Material Form Field Standardization
+// ==========================================================================
+
+// Standard form-line layout (profile/template/statement editing)
+.form-line {
+  display: flex;
+  align-items: center;
+
+  .mat-mdc-form-field,
+  mat-form-field {
+    width: 100%;
+    margin: vars.$spacing-sm vars.$spacing-2xl 0 0;
+  }
+
+  .mat-mdc-text-field-wrapper {
+    background-color: vars.$bg-card;
+  }
+
+  .mat-mdc-form-field-focus-overlay {
+    background-color: vars.$bg-card;
+  }
+}
+
+// Dense select for compact table dropdowns
+.dense-select {
+  width: 100%;
+  max-width: 140px;
+  margin: 0 auto;
+  display: block;
+
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+
+  .mat-mdc-text-field-wrapper {
+    padding: 0 vars.$spacing-sm;
+    height: vars.$input-height-sm;
+    display: flex;
+    align-items: center;
+  }
+
+  .mat-mdc-form-field-infix {
+    padding-top: 0;
+    padding-bottom: 0;
+    min-height: vars.$input-height-sm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mat-mdc-select-value {
+    text-align: center;
+    justify-content: center;
+    display: flex;
+    font-size: vars.$input-font-size;
+  }
+
+  .mat-mdc-select-arrow-wrapper {
+    transform: translateY(0%);
+  }
+}
+
+// ==========================================================================
+// Button Base Styles
+// ==========================================================================
+
+button {
+  cursor: pointer;
+  border-radius: vars.$btn-radius;
+  font-weight: vars.$font-weight-medium;
+  font-size: vars.$btn-font-size;
+  transition: background-color vars.$transition-fast,
+  transform vars.$transition-fast,
+  box-shadow vars.$transition-fast;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Primary button style
+.btn-primary,
+.submit-button {
+  background-color: vars.$btn-primary-bg;
+  color: vars.$btn-primary-text;
+  border: none;
+  height: vars.$btn-height;
+  min-width: vars.$btn-min-width;
+  padding: vars.$btn-padding-y vars.$btn-padding-x;
+
+  &:hover:not(:disabled) {
+    background-color: vars.$btn-primary-hover;
+  }
+}
+
+// Secondary/Danger button style
+.btn-secondary,
+.btn-danger {
+  background-color: vars.$btn-secondary-bg;
+  color: vars.$btn-secondary-text;
+  border: none;
+  height: vars.$btn-height;
+  min-width: vars.$btn-min-width;
+  padding: vars.$btn-padding-y vars.$btn-padding-x;
+
+  &:hover:not(:disabled) {
+    background-color: vars.$btn-secondary-hover;
+  }
+}
+
+// ==========================================================================
+// Angular Material Button Standardization
+// ==========================================================================
+
+// Consistent font-size & border-radius for ALL Material buttons
+.mat-mdc-button-base:not(.mat-mdc-icon-button):not(.mat-mdc-fab):not(.mat-mdc-mini-fab) {
+  font-size: vars.$btn-font-size;
+  border-radius: vars.$btn-radius;
+  box-sizing: border-box;
+}
+
+// Full sizing only for primary-action buttons (mat-flat-button, mat-raised-button)
+.mat-mdc-unelevated-button,
+.mat-mdc-raised-button {
+  height: vars.$btn-height;
+  min-width: vars.$btn-min-width;
+  padding: vars.$btn-padding-y vars.$btn-padding-x;
+  line-height: vars.$btn-height;
+}
+
+// Responsive: full-width buttons on small screens
+@media (max-width: vars.$breakpoint-sm) {
+  .mat-mdc-unelevated-button:not(.no-stretch),
+  .mat-mdc-raised-button:not(.no-stretch) {
+    min-width: 0;
+  }
+}
+
+// ==========================================================================
+// Card Base Styles (Modern Minimalist SaaS)
+// ==========================================================================
+
+.card {
+  background: vars.$bg-card;
+  border: 1px solid vars.$border-default;
+  border-radius: vars.$radius-lg;
+  padding: vars.$spacing-lg;
+  box-shadow: vars.$shadow-sm;
+}
+
+// ==========================================================================
+// Standard HTML Table Styling - Consistent Look and Feel
+// ==========================================================================
+
+// Base table styling for consistency across all table types
+table.app-table,
+.styled-table,
+.summary-table {
+  font-family: vars.$font-family-primary;
+  width: 100%;
+  border-collapse: collapse;
+  background-color: vars.$bg-card;
+  border-radius: vars.$radius-lg;
+  overflow: hidden;
+  box-shadow: vars.$shadow-sm;
+
+  thead {
+    background-color: vars.$color-primary;
+
+    th {
+      font-family: vars.$font-family-primary;
+      font-size: vars.$font-size-sm;
+      font-weight: vars.$font-weight-semibold;
+      color: vars.$text-on-primary;
+      padding: vars.$spacing-sm vars.$spacing-md;
+      text-align: center;
+      border: none;
+    }
+  }
+
+  tbody {
+    tr {
+      transition: background-color vars.$transition-fast;
+
+      &:hover {
+        background-color: vars.$bg-muted;
+      }
+
+      &:nth-child(even) {
+        background-color: vars.$bg-muted;
+
+        &:hover {
+          background-color: vars.$color-cararra;
+        }
+      }
+    }
+
+    td {
+      font-family: vars.$font-family-primary;
+      font-size: vars.$font-size-sm;
+      color: vars.$text-secondary;
+      padding: vars.$spacing-sm vars.$spacing-md;
+      text-align: center;
+      border-bottom: 1px solid vars.$border-default;
+      vertical-align: middle;
+    }
+  }
+}
+
+// ==========================================================================
+// Utility Classes
+// ==========================================================================
+
+.text-primary {
+  color: vars.$text-primary;
+}
+
+.text-secondary {
+  color: vars.$text-secondary;
+}
+
+.text-muted {
+  color: vars.$text-muted;
+}
+
+.text-accent {
+  color: vars.$color-accent;
+}
+
+.bg-primary {
+  background-color: vars.$color-primary;
+}
+
+.bg-accent {
+  background-color: vars.$color-accent;
+}
+
+// ==========================================================================
+// Status Badge Styles (Global)
+// ==========================================================================
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  border-radius: 16px; // Pill shape
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+  white-space: nowrap;
+
+  &.status-approved {
+    background-color: vars.$status-success-bg;
+    color: vars.$status-success-text;
+    border: 1px solid vars.$status-success-border;
+  }
+
+  &.status-rejected {
+    background-color: vars.$status-error-bg;
+    color: vars.$status-error-text;
+    border: 1px solid vars.$status-error-border;
+  }
+
+  &.status-pending { // in validare
+    background-color: vars.$status-warning-bg;
+    color: vars.$status-warning-text;
+    border: 1px solid vars.$status-warning-border;
+  }
+
+  &.status-draft {
+    background-color: vars.$status-info-bg;
+    color: vars.$status-info-text;
+    border: 1px solid vars.$status-info-border;
+  }
+}
+
+// ==========================================================================
+// Link Styles
+// ==========================================================================
+
+a {
+  color: vars.$color-primary;
+  text-decoration: none;
+  transition: color vars.$transition-fast;
+
+  &:hover {
+    color: vars.$btn-primary-hover;
+  }
+}
+
+// Global Parity Styles
+.par {
+  background-color: vars.$color-parity-par-bg;
+  color: vars.$color-parity-par-text;
+  border-color: vars.$color-parity-par-border;
+}
+
+.impar {
+  background-color: vars.$color-parity-impar-bg;
+  color: vars.$color-parity-impar-text;
+  border-color: vars.$color-parity-impar-border;
+}
+
+// ==========================================================================
+// Material Datepicker Global Fix - Remove focus state box
+// ==========================================================================
+
+// Remove the state layer completely from ALL icon buttons
+.mat-mdc-icon-button {
+  // Remove the state layer div that causes the box
+  .mdc-icon-button__state-layer {
+    display: none !important;
+    background: none !important;
+    opacity: 0 !important;
+  }
+
+  // Remove focus indicator
+  .mat-mdc-focus-indicator {
+    display: none !important;
+  }
+
+  // Remove touch target
+  .mat-mdc-button-touch-target {
+    display: none !important;
+  }
+
+  // Remove ripple elements
+  .mat-mdc-button-persistent-ripple,
+  .mat-mdc-button-ripple,
+  .mat-ripple,
+  .mdc-icon-button__ripple,
+  .mdc-icon-button__focus-ring {
+    display: none !important;
+  }
+
+  // Remove pseudo elements
+  &::before,
+  &::after {
+    display: none !important;
+    background: transparent !important;
+    content: none !important;
+  }
+
+  // Remove focus/hover states
+  &:hover,
+  &:focus,
+  &:focus-visible,
+  &:focus-within,
+  &:active {
+    outline: none !important;
+    box-shadow: none !important;
+
+    .mdc-icon-button__state-layer {
+      display: none !important;
+      background: none !important;
+      opacity: 0 !important;
+    }
+  }
+}
+
+// Specifically for datepicker toggle
+.mat-datepicker-toggle {
+  .mat-mdc-icon-button {
+    overflow: visible !important;
+
+    .mdc-icon-button__state-layer {
+      display: none !important;
+    }
+  }
+}
+
+// Override MDC CSS variables
+:root {
+  --mat-icon-button-state-layer-size: 0px !important;
+}
+
+.cdk-overlay-container {
+  z-index: 99999 !important;
+}
+
+// Green slide toggle for external approval
+.green-toggle.mat-mdc-slide-toggle {
+  --mat-slide-toggle-selected-track-color: #{vars.$color-success};
+  --mat-slide-toggle-selected-hover-track-color: #{vars.$btn-success-hover};
+  --mat-slide-toggle-selected-pressed-track-color: #{vars.$btn-success-active};
+  --mat-slide-toggle-selected-focus-track-color: #{vars.$color-success};
+  --mat-slide-toggle-selected-handle-color: #{vars.$color-white};
+  --mat-slide-toggle-selected-hover-handle-color: #{vars.$color-white};
+  --mat-slide-toggle-selected-pressed-handle-color: #{vars.$color-white};
+  --mat-slide-toggle-selected-focus-handle-color: #{vars.$color-white};
+  --mat-slide-toggle-selected-icon-color: #{vars.$color-success};
+  --mat-slide-toggle-selected-focus-state-layer-color: #{vars.$color-success};
+  --mat-slide-toggle-selected-hover-state-layer-color: #{vars.$color-success};
+  --mat-slide-toggle-selected-pressed-state-layer-color: #{vars.$color-success};
+}
+
+// Green checkbox
+.green-checkbox.mat-mdc-checkbox {
+  --mdc-checkbox-selected-checkmark-color: #{vars.$color-white};
+  --mdc-checkbox-selected-icon-color: #{vars.$color-success};
+  --mdc-checkbox-selected-focus-icon-color: #{vars.$color-success};
+  --mdc-checkbox-selected-hover-icon-color: #{vars.$btn-success-hover};
+  --mdc-checkbox-selected-pressed-icon-color: #{vars.$btn-success-active};
+  --mdc-checkbox-selected-focus-state-layer-color: #{vars.$color-success};
+  --mdc-checkbox-selected-hover-state-layer-color: #{vars.$color-success};
+  --mdc-checkbox-selected-pressed-state-layer-color: #{vars.$color-success};
+  --mdc-checkbox-unselected-focus-state-layer-color: #{vars.$color-success};
+  --mdc-checkbox-unselected-hover-state-layer-color: #{vars.$color-success};
+  --mdc-checkbox-unselected-pressed-state-layer-color: #{vars.$color-success};
+  --mat-checkbox-selected-checkmark-color: #{vars.$color-white};
+  --mat-checkbox-selected-icon-color: #{vars.$color-success};
+  --mat-checkbox-selected-focus-icon-color: #{vars.$color-success};
+  --mat-checkbox-selected-hover-icon-color: #{vars.$btn-success-hover};
+  --mat-checkbox-selected-pressed-icon-color: #{vars.$btn-success-active};
+  --mat-checkbox-selected-focus-state-layer-color: #{vars.$color-success};
+  --mat-checkbox-selected-hover-state-layer-color: #{vars.$color-success};
+  --mat-checkbox-selected-pressed-state-layer-color: #{vars.$color-success};
+  --mat-checkbox-unselected-focus-state-layer-color: #{vars.$color-success};
+  --mat-checkbox-unselected-hover-state-layer-color: #{vars.$color-success};
+  --mat-checkbox-unselected-pressed-state-layer-color: #{vars.$color-success};
+}
+.page-header {
+  margin: 1rem 0 0 0;
+  h1 {
+    font-size: vars.$font-size-xl;
+    color: vars.$text-heading;
+    margin: 0 0 4px 0;
+  }
+
+  .subtitle {
+    color: vars.$text-muted;
+    font-size: vars.$font-size-sm;
+    margin: 0;
+  }
+}
+.mdc-button {
+  border-radius: vars.$radius-md !important;
+  height: vars.$btn-height;
+  min-width: vars.$btn-min-width;
+  padding: vars.$btn-padding-y vars.$btn-padding-x;
+}
+
+.err {
+  margin-right: 1rem;
+  color: vars.$color-accent !important;
+}
+.po-btn {
+  margin-left: 0.5rem;
+  border: 1px solid vars.$color-cararra !important;
+  &.icon-primary {
+    color: vars.$text-light !important;
+    background-color: vars.$text-primary !important;
+  }
+
+  &.icon-green {
+    color: vars.$status-success !important;
+  }
+
+  &.icon-grey {
+    color: vars.$text-muted !important;
+  }
+
+  &.icon-red {
+    color: vars.$color-accent !important;
+  }
+}
+
+mat-icon {
+  margin-right: 0.5rem;
+  &.icon-red {
+    color: vars.$btn-secondary-bg;
+  }
+  &.icon-orange {
+    color: vars.$color-cream;
+  }
+  &.icon-primary {
+    color: vars.$text-primary;
+  }
+  &.icon-green {
+    color: vars.$status-success;
+  }
+}
+.mat-mdc-table {
+  border-radius: vars.$radius-md !important;
+}
+
+input {
+  box-shadow: none !important;
+}
+
+.compact-form {
+
+  .mat-mdc-form-field {
+    /* Limit height and center content */
+    .mat-mdc-form-field-flex {
+      height: 40px;
+      align-items: center;
+    }
+
+    .mat-mdc-form-field-infix {
+      min-height: 40px;
+      padding-top: 4px;    /* small padding for vertical breathing */
+      padding-bottom: 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Input font size smaller for compactness */
+    .mat-mdc-input-element {
+      font-size: 14px;
+      line-height: 16px;
+    }
+
+    .mat-mdc-notch-piece{
+      display: flex;
+      font-size: 14px;
+    }
+
+    /* Allow label text to fully display */
+    .mdc-floating-label {
+      white-space: nowrap;
+      overflow: visible !important;
+      text-overflow: clip !important;
+      max-width: none !important;
+    }
+
+    .mat-mdc-select-trigger {
+      height: 40px;
+      line-height: 40px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      font-size: 13px; /* smaller font for compactness */
+    }
+
+    /* Adjust the select panel width if needed */
+    .mat-mdc-select-panel {
+      font-size: 13px;
+    }
+
+    /* Remove extra padding inside the select box */
+    .mat-mdc-select-value {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    /* Icon alignment */
+    .mat-mdc-select-arrow {
+      align-content: center;
+      font-size: 20px;
+      height: 40px;
+      line-height: 40px;
+    }
+  }
+}
+
+

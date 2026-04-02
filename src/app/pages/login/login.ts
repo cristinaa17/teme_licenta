@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
   standalone: true,
   imports: [MatCardModule, MatButtonModule], 
   templateUrl: './login.html',
-  styleUrls: ['./login.css']
+  styleUrls: ['./login.scss']
 })
 export class LoginComponent implements AfterViewInit {
   private auth = inject(AuthService);

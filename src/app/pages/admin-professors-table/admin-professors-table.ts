@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCard } from '@angular/material/card';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../services/auth';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-admin-professors-table',
@@ -22,7 +22,7 @@ import { AuthService } from '../services/auth';
     CommonModule,
   ],
   templateUrl: './admin-professors-table.html',
-  styleUrls: ['./admin-professors-table.css'],
+  styleUrls: ['./admin-professors-table.scss'],
 })
 export class AdminProfessorsTableComponent {
   @Input() professors: any[] = [];
@@ -39,7 +39,9 @@ export class AdminProfessorsTableComponent {
   constructor(private authService: AuthService) {}
 
   ngOnInit() {
-    this.user = this.authService.getUser();
+    this.authService.user$.subscribe((user) => {
+      this.user = user;
+    });
   }
 
   displayedColumns: string[] = [

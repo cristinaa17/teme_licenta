@@ -1,98 +1,12 @@
-<mat-toolbar class="toolbar">
-  <div class="logo">
-    <mat-icon>school</mat-icon>
-    <span>Teme Licență ULBS</span>
-  </div>
-
-  <span class="spacer"></span>
-
-  <div *ngIf="user; else loginBtn" class="toolbar-actions">
-    <div class="user">
-      <mat-icon>account_circle</mat-icon>
-      <span>{{ user.name }}</span>
-    </div>
-
-    <div class="notif-wrapper" *ngIf="user?.role === 'profesor'">
-      <button mat-icon-button (click)="toggleNotifications()">
-        <mat-icon>notifications</mat-icon>
-
-        <span *ngIf="notifications.length > 0" class="notif-badge">
-          {{ notifications.length }}
-        </span>
-      </button>
-
-      <div class="notif-dropdown" *ngIf="showNotifications">
-        <div class="notif-header">
-          <span>Notificări</span>
-
-          <button *ngIf="notifications.length > 0" (click)="markSeen()">Marchează ca citite</button>
-        </div>
-
-        <div class="notif-list">
-          <div *ngIf="notifications.length === 0" class="empty">🔕 Nu ai notificări</div>
-
-          <div *ngFor="let n of notifications" class="notif-item">
-            <span class="icon">🔔</span>
-            <span class="text">{{ n.message }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <button
-      *ngIf="user?.role === 'admin'"
-      mat-stroked-button
-      [matMenuTriggerFor]="profMenu"
-      [matMenuTriggerRestoreFocus]="false"
-    >
-      Impersonare
-    </button>
-
-    <mat-menu
-      #profMenu="matMenu"
-      [overlapTrigger]="false"
-      xPosition="before"
-      yPosition="below"
-      [hasBackdrop]="true"
-      class="impersonate-menu"
-    >
-      <div class="px-3 py-2" (click)="$event.stopPropagation()">
-        <mat-form-field appearance="outline" class="w-100">
-          <input
-            matInput
-            placeholder="Caută profesor..."
-            [(ngModel)]="searchProfessor"
-            (click)="$event.stopPropagation()"
-          />
-        </mat-form-field>
-      </div>
-
-      <button mat-menu-item *ngFor="let p of filteredProfessors" (click)="impersonate(p.email)">
-        {{ p.name }}
-      </button>
-    </mat-menu>
-
-    <button *ngIf="isImpersonating" mat-button color="warn" (click)="stopImpersonation()">
-      Revino
-    </button>
-
-    <button mat-icon-button (click)="logout()">
-      <mat-icon>logout</mat-icon>
-    </button>
-  </div>
-
-  <ng-template #loginBtn>
-    <button mat-raised-button color="primary" routerLink="/login">Login</button>
-  </ng-template>
-</mat-toolbar>
-
-<div class="page-shell">
-  <div class="hero-card">
-    <div class="hero-content">
-      <h2>Caută tema perfectă 🎯</h2>
+<div class="search-hero">
+  <div class="page-container">
+  <div class="search-content">
+    <div class="search-text">
+      <h2>Caută tema perfectă</h2>
       <p>Filtrează rapid după profesor, facultate sau specializare</p>
     </div>
 
-    <div class="form-grid hero-form">
+    <div class="search-box">
       <mat-form-field appearance="outline">
         <mat-label>Profesor</mat-label>
         <input
@@ -125,7 +39,9 @@
       </mat-form-field>
     </div>
   </div>
-
+  </div>
+</div>
+<div class = "page-content">
   <app-admin-professors-table
     *ngIf="user?.role === 'admin'"
     [professors]="professors"
@@ -138,7 +54,9 @@
   >
   </app-admin-professors-table>
 
-  <mat-card *ngIf="user?.role === 'profesor'" class="modern-card add-theme-card">
+  <div class="add-theme-section" *ngIf="user?.role === 'profesor'">
+    <div class="page-container">
+  <mat-card class="add-theme-card">
     <div class="section-head">
       <div>
         <h4>Adaugă temă</h4>
@@ -180,84 +98,171 @@
       <button mat-raised-button color="primary" (click)="addTheme($event)">Salvează tema</button>
     </div>
   </mat-card>
-
-  <h3 *ngIf="user?.role === 'profesor'">
-    {{ showAllThemes ? '📚 Toate temele' : '📌 Temele mele' }}
-  </h3>
-  <div *ngIf="user?.role === 'profesor'" style="margin: 20px 0">
-    <mat-slide-toggle [(ngModel)]="showAllThemes" (change)="toggleThemesView()">
-      {{ showAllThemes ? 'Vezi doar temele mele' : 'Arată toate temele' }}
-    </mat-slide-toggle>
   </div>
-  <div *ngIf="themes && themes.length > 0; else noThemes" class="themes-grid">
-    <div *ngFor="let t of themes" class="theme-card">
-      <div *ngIf="editingThemeId !== t.id">
-        <h5>{{ t.title }}</h5>
-        <p class="desc">{{ t.description }}</p>
+  </div>
 
-        <div class="meta">
-          <span>🏫 {{ t.faculty_name }}</span>
-          <span>📚 {{ t.specialization_name }}</span>
-          <span>👨‍🏫 {{ t.professor_name }}</span>
-        </div>
 
-        <span *ngIf="t.status === 'taken'" class="status danger"> Ocupată </span>
+<div class="themes-section">
 
-        <div class="theme-footer">
-          <button
-            *ngIf="user?.role === 'student' && t.status !== 'ocupat'"
-            class="apply-btn"
-            (click)="apply(t)"
-          >
-            Aplică
-          </button>
+  <!-- ===== HEADER ===== -->
+  <div *ngIf="user?.role === 'profesor'" class="themes-header">
 
-          <div *ngIf="user?.role === 'profesor' && user?.email === t.professor_email">
-            <button class="apply-btn" (click)="startEdit(t)">✏️ Editează</button>
+    <div class="header-left">
+      <h3 class="section-title">
+        {{ showAllThemes ? 'Toate temele' : 'Temele mele' }}
+      </h3>
 
-            <button class="warn-btn" (click)="deleteTheme(t.id)">🗑 Șterge</button>
+      <p class="section-subtitle">
+        Administrare teme de licență și gestionarea aplicațiilor
+      </p>
+    </div>
 
-            <button class="apply-btn" (click)="viewApplicants(t)">👀 Aplicanți</button>
+    <div class="header-right">
+      <mat-slide-toggle
+        [(ngModel)]="showAllThemes"
+        (change)="toggleThemesView()"
+      >
+        {{ showAllThemes ? 'Afișează doar temele mele' : 'Afișează toate temele' }}
+      </mat-slide-toggle>
+    </div>
+
+  </div>
+
+  <!-- ===== CONTENT ===== -->
+  <div class="themes-content">
+
+    <!-- GRID -->
+    <div *ngIf="themes && themes.length > 0; else noThemes" class="themes-grid">
+
+      <div *ngFor="let t of themes" class="theme-card">
+
+        <!-- ===== VIEW MODE ===== -->
+        <ng-container *ngIf="editingThemeId !== t.id">
+
+          <!-- TITLE -->
+          <h5 class="theme-title">{{ t.title }}</h5>
+
+          <!-- DESCRIPTION -->
+          <p class="theme-desc">
+            {{ t.description || 'Fără descriere disponibilă' }}
+          </p>
+
+          <!-- META -->
+          <div class="theme-meta">
+            <div><span class="label">Facultate:</span> {{ t.faculty_name }}</div>
+            <div><span class="label">Specializare:</span> {{ t.specialization_name }}</div>
+            <div><span class="label">Profesor:</span> {{ t.professor_name }}</div>
           </div>
 
-          <div class="like-chip" (click)="like(t)">❤️ {{ t.likes || 0 }}</div>
+          <!-- STATUS -->
+          <div class="theme-status">
+            <span *ngIf="t.status === 'taken'" class="status-badge taken">
+              Ocupată
+            </span>
+
+            <span *ngIf="t.status !== 'taken'" class="status-badge available">
+              Disponibilă
+            </span>
+          </div>
+
+          <!-- FOOTER -->
+          <div class="theme-footer">
+
+            <!-- STUDENT ACTION -->
+            <button
+              *ngIf="user?.role === 'student' && t.status !== 'ocupat'"
+              class="primary-btn"
+              (click)="apply(t)"
+            >
+              Aplică
+            </button>
+
+            <!-- PROF ACTIONS -->
+            <div
+              *ngIf="user?.role === 'profesor' && user?.email === t.professor_email"
+              class="actions-group"
+            >
+              <button (click)="startEdit(t)">Editează</button>
+              <button class="danger" (click)="deleteTheme(t.id)">Șterge</button>
+              <button (click)="viewApplicants(t)">Aplicanți</button>
+            </div>
+
+            <!-- LIKES -->
+          <button class="like-btn" (click)="like(t)">
+            <mat-icon>favorite</mat-icon>
+            {{ t.likes || 0 }}
+          </button>
+
+          </div>
+
+        </ng-container>
+
+        <!-- ===== EDIT MODE ===== -->
+        <ng-container *ngIf="editingThemeId === t.id">
+
+          <div class="edit-card">
+
+            <input
+              class="edit-input title"
+              [(ngModel)]="editData.title"
+              placeholder="Titlu temă"
+            />
+
+            <textarea
+              class="edit-input desc"
+              [(ngModel)]="editData.description"
+              placeholder="Descriere"
+            ></textarea>
+
+            <div class="edit-actions">
+              <button class="primary-btn" (click)="saveEdit(t.id)">
+                Salvează
+              </button>
+
+              <button class="secondary-btn" (click)="editingThemeId = null">
+                Anulează
+              </button>
+            </div>
+
+          </div>
+
+        </ng-container>
+
+        <!-- ===== APPLICANTS ===== -->
+        <div *ngIf="selectedTheme === t.id" class="applicants-box">
+
+          <h4>Aplicanți</h4>
+
+          <div *ngIf="applicants.length === 0" class="empty">
+            Nu există aplicanți
+          </div>
+
+          <div *ngFor="let a of applicants" class="applicant-item">
+            <span>{{ a.student_name }}</span>
+
+            <button class="primary-btn small" (click)="accept(a.id)">
+              Acceptă
+            </button>
+          </div>
+
         </div>
+
       </div>
-      <div *ngIf="selectedTheme === t.id" class="applicants-box">
-        <h4>📩 Aplicanți</h4>
 
-        <div *ngIf="applicants.length === 0">Nu există aplicanți</div>
-
-        <div *ngFor="let a of applicants" class="applicant-item">
-          <span>{{ a.student_name }}</span>
-
-          <button class="save-btn" (click)="accept(a.id)">✔ Acceptă</button>
-        </div>
-      </div>
-      <div *ngIf="editingThemeId === t.id" class="edit-card">
-        <input class="edit-input title" [(ngModel)]="editData.title" placeholder="Titlu temă..." />
-
-        <textarea
-          class="edit-input desc"
-          [(ngModel)]="editData.description"
-          placeholder="Descriere..."
-        ></textarea>
-
-        <div class="edit-actions">
-          <button class="save-btn" (click)="saveEdit(t.id)">💾 Salvează</button>
-
-          <button class="cancel-btn" (click)="editingThemeId = null">✖ Anulează</button>
-        </div>
-      </div>
     </div>
+
   </div>
+
+  <!-- ===== EMPTY STATE ===== -->
   <ng-template #noThemes>
     <div class="no-themes">
       {{
         searchProfessor || selectedFaculty || selectedSpecialization
-          ? '🔍 Nu există rezultate pentru căutarea ta'
-          : '😔 Nu există teme disponibile'
+          ? 'Nu există rezultate pentru criteriile selectate'
+          : 'Nu există teme disponibile'
       }}
     </div>
   </ng-template>
+
+</div>
 </div>

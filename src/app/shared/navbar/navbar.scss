@@ -1,0 +1,215 @@
+@use '../../../styles/variables' as vars;
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background-color: vars.$color-primary;
+  display: flex;
+  align-items: center;
+  padding: 0 vars.$spacing-lg;
+  z-index: vars.$z-fixed;
+  box-shadow: vars.$shadow-sm;
+}
+
+.header-inner {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.title-wrapper {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.app-title {
+  color: vars.$text-on-primary;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.app-subtitle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.logo-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.logo-img {
+  height: 40px;
+}
+
+.user-btn {
+  color: white; 
+}
+
+.user-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.user-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 12px;
+
+  transition: 0.2s;
+}
+
+.user-name {
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+::ng-deep .ulbs-menu {
+  background-color: vars.$bg-card !important;
+  border-radius: vars.$radius-md !important;
+  box-shadow: vars.$shadow-lg !important;
+  padding: 4px 0;
+}
+
+::ng-deep .ulbs-menu .mat-mdc-menu-item {
+  font-size: vars.$font-size-sm;
+  color: vars.$text-secondary;
+}
+
+::ng-deep .ulbs-menu .mat-mdc-menu-item:hover {
+  background-color: vars.$bg-muted;
+}
+
+::ng-deep .logout-item {
+  color: vars.$color-accent !important;
+  font-weight: 500;
+}
+
+.header .mat-mdc-stroked-button {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 8px;
+}
+
+.header .mat-mdc-stroked-button:hover {
+  background-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.mat-mdc-icon-button {
+  color: white;
+  opacity: 0.9;
+}
+
+.mat-mdc-icon-button:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.user-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-links {
+  display: flex;
+  gap: vars.$spacing-lg;
+}
+
+.nav-link {
+  color: vars.$text-on-primary;
+  text-decoration: none;
+  font-size: vars.$font-size-sm;
+  padding: 6px 10px;
+  border-radius: vars.$radius-md;
+  transition: vars.$transition-fast;
+}
+
+.nav-link:hover {
+  background-color: vars.$color-white;
+  color: vars.$color-primary;
+}
+
+.nav-link.active {
+  background-color: vars.$color-light-blue;
+  color: vars.$color-primary;
+}
+
+.right-section {
+  display: flex;
+  align-items: center;
+  gap: vars.$spacing-md;
+}
+
+.user-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: vars.$radius-full;
+  object-fit: cover;
+}
+
+.notif-wrapper {
+  position: relative;
+}
+
+.notif-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: vars.$color-accent;
+  color: white;
+  font-size: 10px;
+  border-radius: 50%;
+  padding: 2px 6px;
+}
+
+.notif-dropdown {
+  position: absolute;
+  right: 0;
+  top: 50px;
+  width: 260px;
+  background: vars.$bg-card;
+  color: vars.$text-secondary;
+  border-radius: vars.$radius-md;
+  box-shadow: vars.$shadow-md;
+}
+
+.notif-header {
+  padding: vars.$spacing-sm vars.$spacing-md;
+  border-bottom: 1px solid vars.$border-default;
+  display: flex;
+  justify-content: space-between;
+}
+
+.notif-item {
+  padding: vars.$spacing-sm vars.$spacing-md;
+}
+
+.notif-item:hover {
+  background: vars.$bg-muted;
+}
+
+.empty {
+  padding: vars.$spacing-md;
+  text-align: center;
+  color: vars.$text-muted;
+}

@@ -74,7 +74,7 @@ export class UlbsService {
   }
 
   getProfessors() {
-    return this.http.get(`${this.baseUrl}/professors`);
+    return this.http.get<any>(`${this.baseUrl}/professors`);
   }
 
   setRequiredThemes(email: string, count: number, extra: number) {

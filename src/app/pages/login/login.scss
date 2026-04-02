@@ -1,0 +1,54 @@
+@use '../../../styles/variables' as vars;
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: vars.$bg-body;
+  padding: vars.$spacing-lg;
+}
+
+.login-card {
+  background: vars.$bg-card;
+  padding: vars.$spacing-2xl;
+  width: 560px;
+  max-width: 90vw;
+  padding-top: 3rem;
+  border-radius: vars.$radius-lg;
+  border: 1px solid vars.$border-default;
+  box-shadow: vars.$shadow-md;
+  text-align: center;
+}
+
+.logo {
+  height: 80px; 
+  margin-bottom: vars.$spacing-lg;
+}
+
+h2 {
+  margin-bottom: vars.$spacing-sm;
+  color: vars.$text-heading;
+  font-size: vars.$font-size-xl;
+}
+
+.subtitle {
+  color: vars.$text-muted;
+  font-size: vars.$font-size-sm;
+  margin-top: vars.$spacing-sm;
+  margin-bottom: vars.$spacing-xl;
+}
+
+#googleBtn {
+  border: 1px solid vars.$border-default;
+  font-weight: 500;
+
+  button {
+    width: 100%;
+    height: vars.$btn-height;
+    border-radius: vars.$btn-radius;
+  }
+}
+
+.login-container {
+  background: vars.$bg-body;
+}

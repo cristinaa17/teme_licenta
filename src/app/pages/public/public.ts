@@ -13,7 +13,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { AdminProfessorsTableComponent } from '../../admin-professors-table/admin-professors-table';
+import { AdminProfessorsTableComponent } from '../admin-professors-table/admin-professors-table';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
@@ -34,9 +34,9 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
     AdminProfessorsTableComponent,
     MatSlideToggleModule,
     MatAutocompleteModule,
-  ],
+],
   templateUrl: './public.html',
-  styleUrls: ['./public.css'],
+  styleUrls: ['./public.scss'],
 })
 export class PublicComponent implements OnInit {
   private auth = inject(AuthService);
@@ -121,6 +121,7 @@ export class PublicComponent implements OnInit {
         this.themes = this.allThemes;
       }
       console.log('ALL THEMES:', this.allThemes);
+      this.filterThemes();
       this.cdr.detectChanges();
     });
   }
@@ -133,38 +134,42 @@ export class PublicComponent implements OnInit {
     }
   }
 
-  toggleNotifications() {
-    this.showNotifications = !this.showNotifications;
-  }
-
   search() {
     this.filterThemes();
   }
 
-  getFacultyName(id: string) {
-    return this.faculties.find((f) => f.id == id)?.name;
-  }
+  // getFacultyName(id: string) {
+  //   return this.faculties.find((f) => f.id == id)?.name;
+  // }
 
-  getSpecializationName(id: string) {
-    return this.specializations.find((s) => s.id == id)?.name;
-  }
+  // getSpecializationName(id: string) {
+  //   return this.specializations.find((s) => s.id == id)?.name;
+  // }
 
-  filterThemes(): void {
-    const search = (this.searchProfessor || '').toLowerCase();
+filterThemes(): void {
+  const search = (this.searchProfessor || '').toLowerCase();
 
-    this.themes = this.allThemes.filter((t) => {
-      const matchProfessor = !search || t.professor_email?.toLowerCase().includes(search);
+  this.themes = this.allThemes.filter((t) => {
 
-      const matchFaculty =
-        !this.selectedFaculty || t.faculty_name === this.getFacultyName(this.selectedFaculty);
+    const matchProfessor =
+      !search ||
+      (t.professor_name || t.professor_email || '')
+        .toLowerCase()
+        .includes(search);
 
-      const matchSpecialization =
-        !this.selectedSpecialization ||
-        t.specialization_name === this.getSpecializationName(this.selectedSpecialization);
+    const matchFaculty =
+      !this.selectedFaculty ||
+      t.faculty_id == this.selectedFaculty ||
+      t.faculty_name === this.faculties.find(f => f.id == this.selectedFaculty)?.name;
 
-      return matchProfessor && matchFaculty && matchSpecialization;
-    });
-  }
+    const matchSpecialization =
+      !this.selectedSpecialization ||
+      t.specialization_id == this.selectedSpecialization ||
+      t.specialization_name === this.specializations.find(s => s.id == this.selectedSpecialization)?.name;
+
+    return matchProfessor && matchFaculty && matchSpecialization;
+  });
+}
 
   onSearchChange(): void {
     this.filterThemes();
@@ -239,27 +244,35 @@ export class PublicComponent implements OnInit {
       });
   }
 
-  onFacultyChange(isProfessor = false) {
-    const facultyId = isProfessor ? this.profFaculty : this.selectedFaculty;
+onFacultyChange(isProfessor = false) {
+  const facultyId = isProfessor ? this.profFaculty : this.selectedFaculty;
 
-    if (isProfessor) {
-      this.profSpecialization = '';
-    } else {
-      this.selectedSpecialization = '';
-    }
-
-    this.specializations = [];
-
-    this.ulbs.getSpecializations(facultyId).subscribe((res: any) => {
-      this.specializations = res.data || [];
-
-      this.cdr.detectChanges();
-
-      if (!isProfessor) {
-        this.filterThemes(); 
-      }
-    });
+  // 🔥 RESET specializare
+  if (isProfessor) {
+    this.profSpecialization = '';
+  } else {
+    this.selectedSpecialization = '';
   }
+
+  // 🔥 dacă NU există facultate → golim tot
+  if (!facultyId) {
+    this.specializations = [];
+    this.filterThemes(); // 🔥 actualizează lista
+    return;
+  }
+
+  this.specializations = [];
+
+  this.ulbs.getSpecializations(facultyId).subscribe((res: any) => {
+    this.specializations = res.data || [];
+
+    this.cdr.detectChanges();
+
+    if (!isProfessor) {
+      this.filterThemes(); // 🔥 actualizare instant
+    }
+  });
+}
 
   deleteTheme(id: number) {
     if (!this.user) return;
@@ -388,42 +401,6 @@ export class PublicComponent implements OnInit {
     });
   }
 
-  impersonate(email: string) {
-    const originalAdmin = this.auth.getUser();
-
-    localStorage.setItem('original_admin', JSON.stringify(originalAdmin));
-
-    this.ulbs.impersonate(email).subscribe((user: any) => {
-      localStorage.setItem('user', JSON.stringify(user));
-
-      this.isImpersonating = true;
-
-      location.reload();
-    });
-  }
-
-  stopImpersonation() {
-    const admin = localStorage.getItem('original_admin');
-
-    if (admin) {
-      localStorage.setItem('user', admin);
-
-      localStorage.removeItem('original_admin');
-
-      this.isImpersonating = false;
-
-      location.reload();
-    }
-  }
-
-  get filteredProfessors() {
-    if (!this.searchProfessor) return this.professors;
-
-    return this.professors.filter((p: any) =>
-      p.name.toLowerCase().includes(this.searchProfessor.toLowerCase()),
-    );
-  }
-
   setRequiredThemes(prof: any) {
     this.ulbs
       .setRequiredThemes(prof.email, prof.required_themes, prof.extra_themes || 0)
@@ -475,19 +452,5 @@ export class PublicComponent implements OnInit {
     this.ulbs.getNotifications(this.user.email).subscribe((res: any) => {
       this.notifications = res;
     });
-  }
-
-  markSeen() {
-    this.notifications = []; 
-
-    this.ulbs.markNotificationsSeen(this.user.email).subscribe(() => {
-      this.loadNotifications();
-    });
-  }
-
-  logout() {
-    this.auth.logout();
-    this.user = null;
-    this.loadThemes();
   }
 }

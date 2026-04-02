@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject } from 'rxjs';
 
 declare const google: any;
 
@@ -48,6 +49,7 @@ export class AuthService {
 
         this.user = userFromDb;
         localStorage.setItem('user', JSON.stringify(userFromDb));
+        this.userSubject.next(userFromDb);
 
         this.router.navigate(['/public']);
       },
@@ -56,11 +58,18 @@ export class AuthService {
 
         this.user = payload;
         localStorage.setItem('user', JSON.stringify(payload));
+        this.userSubject.next(payload);
 
         this.router.navigate(['/public']);
       },
     });
   }
+
+  private userSubject = new BehaviorSubject<any>(
+    JSON.parse(localStorage.getItem('user') || 'null'),
+  );
+
+  user$ = this.userSubject.asObservable();
 
   getUser() {
     return JSON.parse(localStorage.getItem('user') || 'null');
@@ -75,6 +84,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('user');
+    this.userSubject.next(null);
     this.router.navigate(['/public']);
   }
 }
