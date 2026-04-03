@@ -1,21 +1,19 @@
 @use '../../../styles/variables' as vars;
 
-/* ===== GLOBAL CONTAINER ===== */
 .page-container {
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 24px;
 }
 
-/* ===== HERO ===== */
 .search-hero {
   background: vars.$color-primary;
   color: white;
 
-  margin: 80px 20px 20px;
+  margin: 37px 20px 20px;
   border-radius: 24px;
 
-  padding: 45px 0; // 🔥 IMPORTANT (fără padding lateral)
+  padding: 45px 0; 
   position: relative;
   overflow: hidden;
 }
@@ -33,7 +31,6 @@
   background: rgba(255,255,255,0.05);
 }
 
-/* ===== TEXT ===== */
 .search-text {
   max-width: 1100px;
   margin: 0 auto 20px;
@@ -50,7 +47,6 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
-/* ===== SEARCH BOX ===== */
 .search-box {
   max-width: 1100px;
   margin: 30px auto 0;
@@ -72,13 +68,11 @@
   }
 }
 
-/* ===== ADD THEME SECTION ===== */
 .add-theme-section {
   margin-top: 30px;
   padding: 40px 20px;
 }
 
-/* ===== ADD THEME CARD ===== */
 .add-theme-card {
   max-width: 1100px;
   margin: 0 auto;
@@ -93,7 +87,6 @@
     0 1px 2px rgba(0,0,0,0.04);
 }
 
-/* ===== HEADER ===== */
 .section-head {
   margin-bottom: 20px;
 }
@@ -109,7 +102,6 @@
   color: #6b7280;
 }
 
-/* ===== GRID FORM ===== */
 .add-theme-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -123,12 +115,10 @@
   }
 }
 
-/* ===== TEXTAREA FULL WIDTH ===== */
 .desc-field {
   grid-column: 1 / -1;
 }
 
-/* ===== BUTTONS ===== */
 .actions {
   margin-top: 20px;
 }
@@ -139,11 +129,9 @@
   font-weight: 600;
 }
 
-/* ===== THEMES GRID ===== */
 .themes-grid {
   max-width: 1100px;
   margin: 30px auto;
-
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
@@ -161,7 +149,6 @@
   transform: translateY(-6px);
 }
 
-/* ===== INPUT STYLE ===== */
 .mat-mdc-text-field-wrapper {
   background: #ffffff !important;
   border-radius: 14px !important;
@@ -178,12 +165,10 @@
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
-/* ===== UTIL ===== */
 .full-width {
   grid-column: 1 / -1;
 }
 
-/* ===== EMPTY STATE ===== */
 .no-themes {
   text-align: center;
   padding: 40px;
@@ -191,12 +176,10 @@
   color: #64748b;
 }
 
-/* ===== SECTION ===== */
 .themes-section {
   margin-top: 20px;
 }
 
-/* ===== HEADER ===== */
 .themes-header {
   max-width: 1100px;
   margin: 40px auto 10px;
@@ -223,7 +206,6 @@
   color: vars.$text-muted;
 }
 
-/* ===== GRID ===== */
 .themes-grid {
   max-width: 1100px;
   margin: 30px auto;
@@ -233,7 +215,6 @@
   gap: 24px;
 }
 
-/* ===== CARD ===== */
 .theme-card {
   background: vars.$bg-card;
   border-radius: 24px;
@@ -256,20 +237,17 @@
   border-color: vars.$color-primary-40;
 }
 
-/* ===== TITLE ===== */
 .theme-title {
   font-size: 18px;
   font-weight: 700;
   color: vars.$text-heading;
 }
 
-/* ===== DESCRIPTION ===== */
 .theme-desc {
   font-size: 14px;
   color: vars.$text-muted;
 }
 
-/* ===== META ===== */
 .theme-meta {
   font-size: 13px;
   color: vars.$text-secondary;
@@ -284,7 +262,6 @@
   color: vars.$text-primary;
 }
 
-/* ===== STATUS ===== */
 .theme-status {
   margin-top: 4px;
 }
@@ -308,7 +285,6 @@
   border: 1px solid vars.$status-success-border;
 }
 
-/* ===== FOOTER ===== */
 .theme-footer {
   margin-top: auto;
 
@@ -318,7 +294,6 @@
   gap: 10px;
 }
 
-/* ===== BUTTONS ===== */
 .primary-btn {
   background: vars.$color-primary;
   color: vars.$color-white;
@@ -359,7 +334,6 @@
   background: vars.$border-default;
 }
 
-/* ===== ACTIONS ===== */
 .actions-group {
   display: flex;
   gap: 6px;
@@ -385,13 +359,11 @@
   color: vars.$status-error-text;
 }
 
-/* ===== LIKES ===== */
 .likes {
   font-size: 12px;
   color: vars.$text-muted;
 }
 
-/* ===== APPLICANTS ===== */
 .applicants-box {
   margin-top: 12px;
   padding: 14px;
@@ -412,7 +384,6 @@
   padding: 6px 0;
 }
 
-/* ===== EDIT MODE ===== */
 .edit-card {
   display: flex;
   flex-direction: column;
@@ -443,7 +414,6 @@
   gap: 10px;
 }
 
-/* ===== EMPTY STATE ===== */
 .no-themes {
   text-align: center;
   padding: 40px;

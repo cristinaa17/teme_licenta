@@ -138,14 +138,6 @@ export class PublicComponent implements OnInit {
     this.filterThemes();
   }
 
-  // getFacultyName(id: string) {
-  //   return this.faculties.find((f) => f.id == id)?.name;
-  // }
-
-  // getSpecializationName(id: string) {
-  //   return this.specializations.find((s) => s.id == id)?.name;
-  // }
-
 filterThemes(): void {
   const search = (this.searchProfessor || '').toLowerCase();
 
@@ -247,17 +239,15 @@ filterThemes(): void {
 onFacultyChange(isProfessor = false) {
   const facultyId = isProfessor ? this.profFaculty : this.selectedFaculty;
 
-  // 🔥 RESET specializare
   if (isProfessor) {
     this.profSpecialization = '';
   } else {
     this.selectedSpecialization = '';
   }
 
-  // 🔥 dacă NU există facultate → golim tot
   if (!facultyId) {
     this.specializations = [];
-    this.filterThemes(); // 🔥 actualizează lista
+    this.filterThemes(); 
     return;
   }
 
@@ -269,7 +259,7 @@ onFacultyChange(isProfessor = false) {
     this.cdr.detectChanges();
 
     if (!isProfessor) {
-      this.filterThemes(); // 🔥 actualizare instant
+      this.filterThemes();
     }
   });
 }

@@ -104,7 +104,6 @@
 
 <div class="themes-section">
 
-  <!-- ===== HEADER ===== -->
   <div *ngIf="user?.role === 'profesor'" class="themes-header">
 
     <div class="header-left">
@@ -128,10 +127,8 @@
 
   </div>
 
-  <!-- ===== CONTENT ===== -->
   <div class="themes-content">
 
-    <!-- GRID -->
     <div *ngIf="themes && themes.length > 0; else noThemes" class="themes-grid">
 
       <div *ngFor="let t of themes" class="theme-card">
@@ -139,22 +136,18 @@
         <!-- ===== VIEW MODE ===== -->
         <ng-container *ngIf="editingThemeId !== t.id">
 
-          <!-- TITLE -->
           <h5 class="theme-title">{{ t.title }}</h5>
 
-          <!-- DESCRIPTION -->
           <p class="theme-desc">
             {{ t.description || 'Fără descriere disponibilă' }}
           </p>
 
-          <!-- META -->
           <div class="theme-meta">
             <div><span class="label">Facultate:</span> {{ t.faculty_name }}</div>
             <div><span class="label">Specializare:</span> {{ t.specialization_name }}</div>
             <div><span class="label">Profesor:</span> {{ t.professor_name }}</div>
           </div>
 
-          <!-- STATUS -->
           <div class="theme-status">
             <span *ngIf="t.status === 'taken'" class="status-badge taken">
               Ocupată
@@ -165,10 +158,8 @@
             </span>
           </div>
 
-          <!-- FOOTER -->
           <div class="theme-footer">
 
-            <!-- STUDENT ACTION -->
             <button
               *ngIf="user?.role === 'student' && t.status !== 'ocupat'"
               class="primary-btn"
@@ -177,7 +168,6 @@
               Aplică
             </button>
 
-            <!-- PROF ACTIONS -->
             <div
               *ngIf="user?.role === 'profesor' && user?.email === t.professor_email"
               class="actions-group"
@@ -187,7 +177,6 @@
               <button (click)="viewApplicants(t)">Aplicanți</button>
             </div>
 
-            <!-- LIKES -->
           <button class="like-btn" (click)="like(t)">
             <mat-icon>favorite</mat-icon>
             {{ t.likes || 0 }}
@@ -197,7 +186,6 @@
 
         </ng-container>
 
-        <!-- ===== EDIT MODE ===== -->
         <ng-container *ngIf="editingThemeId === t.id">
 
           <div class="edit-card">
@@ -228,7 +216,6 @@
 
         </ng-container>
 
-        <!-- ===== APPLICANTS ===== -->
         <div *ngIf="selectedTheme === t.id" class="applicants-box">
 
           <h4>Aplicanți</h4>
@@ -253,7 +240,6 @@
 
   </div>
 
-  <!-- ===== EMPTY STATE ===== -->
   <ng-template #noThemes>
     <div class="no-themes">
       {{

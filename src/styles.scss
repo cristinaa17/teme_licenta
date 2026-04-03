@@ -30,6 +30,22 @@ body {
   overflow-y: auto;
 }
 
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
 // ==========================================================================
 // Typography
 // ==========================================================================
