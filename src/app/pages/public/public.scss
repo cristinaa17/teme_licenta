@@ -87,6 +87,39 @@
     0 1px 2px rgba(0,0,0,0.04);
 }
 
+.quota-card {
+  max-width: 1100px;
+  margin: 24px auto 0;
+  border-radius: 24px;
+  padding: 26px;
+  background: white;
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.05),
+    0 1px 2px rgba(0,0,0,0.04);
+}
+
+.quota-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.quota-item {
+  background: vars.$bg-muted;
+  border-radius: 18px;
+  padding: 16px;
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.quota-item strong {
+  font-size: 24px;
+  color: vars.$color-primary;
+}
+
 .section-head {
   margin-bottom: 20px;
 }

@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -41,18 +41,36 @@ export class NavbarComponent {
   @Input() loadThemes!: () => void;
   @Input() loadNotifications!: () => void;
 
-  constructor(private auth: AuthService) {}
+  constructor(
+    private auth: AuthService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   ngOnInit() {
     console.log('professors:', this.professors);
     console.log('filtered:', this.filteredProfessors);
     this.auth.user$.subscribe((user) => {
       this.user = user;
+
+      if (user?.role === 'profesor') {
+        this.fetchNotifications();
+      }
+
+      this.cdr.detectChanges();
     });
     this.loadProfessors();
 
     const originalAdmin = localStorage.getItem('original_admin');
     this.isImpersonating = !!originalAdmin;
+  }
+
+  private fetchNotifications() {
+    if (!this.user?.email) return;
+
+    this.ulbs.getNotifications(this.user.email).subscribe((res: any) => {
+      this.notifications = res || [];
+      this.cdr.detectChanges();
+    });
   }
 
   toggleNotifications() {

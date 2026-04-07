@@ -67,6 +67,7 @@ export class PublicComponent implements OnInit {
   myThemes: any[] = [];
   isSaving = false;
   isSearching = false;
+  applyingThemeId: number | null = null;
   searchTimeout: any;
   editingThemeId: number | null = null;
   editData = { title: '', description: '' };
@@ -77,62 +78,67 @@ export class PublicComponent implements OnInit {
     description: '',
   };
 
-  ngOnInit() {
-    console.log('INIT');
-
-    this.user = this.auth.getUser();
+ngOnInit() {
+  this.auth.user$.subscribe(user => {
+    this.user = user;
 
     this.isImpersonating = !!localStorage.getItem('original_admin');
 
-    if (this.user?.role === 'profesor') {
+    if (user?.role === 'profesor') {
       this.loadNotifications();
+
+      this.ulbs.getProfessorProgress(user.email).subscribe((res: any) => {
+        this.progress = res;
+      });
     }
 
-    if (this.user?.role === 'admin') {
+    if (user?.role === 'admin') {
       this.ulbs.getProfessors().subscribe((res: any) => {
         this.professors = res;
       });
     }
 
-    if (this.user?.role === 'profesor') {
-      this.ulbs.getProfessorProgress(this.user.email).subscribe((res: any) => {
-        this.progress = res;
-      });
-    }
-
     this.loadThemes();
+  });
 
-    this.ulbs.getFaculties().subscribe((res: any) => {
-      console.log('DATA:', res);
-      this.faculties = res.data;
-      this.cdr.detectChanges();
-    });
-  }
+  this.ulbs.getFaculties().subscribe((res: any) => {
+    this.faculties = res.data;
+    this.cdr.detectChanges();
+  });
+}
 
-  loadThemes() {
-    this.ulbs.getThemes().subscribe((res: any) => {
-      this.allThemes = res || [];
+loadThemes() {
+  this.ulbs.getThemes().subscribe((res: any) => {
+    this.allThemes = res || [];
 
-      if (this.user?.role === 'profesor') {
-        this.myThemes = this.allThemes.filter((t) => t.professor_email === this.user?.email);
+    if (this.user?.role === 'profesor') {
+      this.myThemes = this.allThemes.filter(
+        (t) => t.professor_email === this.user?.email
+      );
 
-        this.themes = this.myThemes;
-      } else {
-        this.themes = this.allThemes;
-      }
-      console.log('ALL THEMES:', this.allThemes);
-      this.filterThemes();
-      this.cdr.detectChanges();
-    });
-  }
-
-  toggleThemesView() {
-    if (this.showAllThemes) {
-      this.themes = this.allThemes;
+      this.themes = this.showAllThemes ? this.allThemes : this.myThemes;
     } else {
-      this.themes = this.myThemes;
+      this.themes = this.allThemes;
     }
+
+    this.filterThemes();
+
+    if (this.selectedTheme) {
+      const stillExists = this.themes.find((t) => t.id == this.selectedTheme);
+      if (!stillExists) {
+        this.selectedTheme = null;
+      }
+    }
+
+    this.cdr.detectChanges();
+  });
+}
+
+toggleThemesView() {
+  if (this.user?.role === 'profesor') {
+    this.filterThemes();
   }
+}
 
   search() {
     this.filterThemes();
@@ -140,9 +146,12 @@ export class PublicComponent implements OnInit {
 
 filterThemes(): void {
   const search = (this.searchProfessor || '').toLowerCase();
+  const sourceThemes =
+    this.user?.role === 'profesor' && !this.showAllThemes
+      ? this.myThemes
+      : this.allThemes;
 
-  this.themes = this.allThemes.filter((t) => {
-
+  this.themes = sourceThemes.filter((t) => {
     const matchProfessor =
       !search ||
       (t.professor_name || t.professor_email || '')
@@ -166,6 +175,7 @@ filterThemes(): void {
   onSearchChange(): void {
     this.filterThemes();
   }
+  
   addTheme(event?: MouseEvent) {
     event?.preventDefault();
     event?.stopPropagation();
@@ -305,14 +315,39 @@ onFacultyChange(isProfessor = false) {
       });
   }
 
-  apply(theme: any) {
-    const payload = {
-      theme_id: theme.id,
-      student_email: this.user.email,
-      student_name: this.user.name,
-    };
+  getRemainingRequiredThemes(): number {
+    const required = this.progress?.required || 0;
+    const created = this.progress?.created || 0;
+    return Math.max(0, required - Math.min(created, required));
+  }
 
-    this.ulbs.applyToTheme(payload).subscribe({
+  getRemainingExtraThemes(): number {
+    const required = this.progress?.required || 0;
+    const extra = this.progress?.extra || 0;
+    const created = this.progress?.created || 0;
+    const extraUsed = Math.max(0, created - required);
+    return Math.max(0, extra - extraUsed);
+  }
+
+apply(theme: any) {
+  if (!this.user) return;
+  if (this.applyingThemeId === theme.id) return;
+
+  const payload = {
+    theme_id: theme.id,
+    student_email: this.user.email,
+    student_name: this.user.name,
+  };
+
+  this.applyingThemeId = theme.id;
+
+  this.ulbs.applyToTheme(payload)
+    .pipe(finalize(() => {
+      if (this.applyingThemeId === theme.id) {
+        this.applyingThemeId = null;
+      }
+    }))
+    .subscribe({
       next: () => {
         alert('Ai aplicat la temă!');
       },
@@ -324,42 +359,43 @@ onFacultyChange(isProfessor = false) {
         }
       },
     });
+}
+
+ viewApplicants(theme: any) {
+  if (this.selectedTheme === theme.id) {
+    this.selectedTheme = null;
+    this.applicants = [];
+    return;
   }
 
-  viewApplicants(theme: any) {
-    this.selectedTheme = this.selectedTheme === theme.id ? null : theme.id;
+  this.selectedTheme = theme.id;
 
-    if (this.selectedTheme === null) {
+  this.ulbs.getApplicants(theme.id).subscribe({
+    next: (res: any) => {
+      const data = Array.isArray(res) ? res : res.data;
+      this.applicants = data || [];
+      this.cdr.detectChanges();
+    },
+    error: () => {
       this.applicants = [];
-      return;
+      this.cdr.detectChanges();
+    }
+  });
+}
+
+accept(id: number) {
+  this.ulbs.acceptApplicant(id).subscribe(() => {
+    alert('Student acceptat');
+
+    this.applicants = this.applicants.filter((a) => a.id !== id);
+
+    if (this.applicants.length === 0) {
+      this.selectedTheme = null;
     }
 
-    this.ulbs.getApplicants(theme.id).subscribe({
-      next: (res: any) => {
-        console.log('THEME ID:', theme.id);
-        console.log('APPLICANTS RESPONSE:', res);
-
-        this.applicants = res.data || res || [];
-      },
-      error: (err) => {
-        console.error('Eroare la getApplicants:', err);
-        this.applicants = [];
-      },
-    });
-  }
-
-  accept(id: number) {
-    this.ulbs.acceptApplicant(id).subscribe(() => {
-      alert('Student acceptat');
-      this.applicants = this.applicants.filter((a) => a.id !== id);
-
-      if (this.applicants.length === 0) {
-        this.selectedTheme = null;
-      }
-
-      this.loadThemes();
-    });
-  }
+    this.loadThemes();
+  });
+}
 
   getVisitorId() {
     let id = localStorage.getItem('visitor_id');

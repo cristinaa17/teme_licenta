@@ -24,7 +24,14 @@
           <div class="notif-header">
             <span>Notificări</span>
 
-            <button *ngIf="notifications.length > 0" (click)="markSeen()">Marchează</button>
+            <button
+              mat-stroked-button
+              color="primary"
+              *ngIf="notifications.length > 0"
+              (click)="markSeen()"
+            >
+              Marchează ca citit
+            </button>
           </div>
 
           <div class="notif-list">

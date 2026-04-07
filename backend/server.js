@@ -339,7 +339,8 @@ app.get('/api/themes/:id/applications', async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT * FROM applications
-       WHERE theme_id=$1`,
+       WHERE theme_id=$1
+         AND COALESCE(status, 'pending') <> 'accepted'`,
       [id],
     );
 
@@ -497,10 +498,11 @@ app.get('/api/professor/theme-progress/:email', async (req, res) => {
 app.post('/api/reminder', async (req, res) => {
   const { email } = req.body;
 
-  await pool.query(`INSERT INTO notifications (email, message) VALUES ($1, $2)`, [
-    email,
-    'Nu ai atins numărul de teme obligatorii',
-  ]);
+  await pool.query(
+    `INSERT INTO notifications (email, message, seen)
+     VALUES ($1, $2, false)`,
+    [email, 'Nu ai atins numărul de teme obligatorii'],
+  );
 
   console.log(`Reminder trimis către ${email}`);
 
@@ -512,7 +514,7 @@ app.get('/api/notifications/:email', async (req, res) => {
 
   const result = await pool.query(
     `SELECT * FROM notifications 
-     WHERE email = $1 AND seen = false
+     WHERE email = $1 AND COALESCE(seen, false) = false
      ORDER BY created_at DESC`,
     [email],
   );
